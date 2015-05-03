@@ -1,23 +1,21 @@
 'use strict';
- 
- //  App
-var app = require('./app');
 
-var View = require('ampersand-view');
-var Tutorial1 = require('./view/tutorial1');
-
-var AppView = View.extend({
-    initialize: function() {
-        if (document.querySelector('.tutorials')) {
-            var $tutorials = this.query('.tutorials');
-            var tutorialsView = new Tutorial1({
-                app: this,
-                el: $tutorials,
-            });
-        }
+var App = require('ampersand-app');
+App.extend({
+    options: {
+        baseUrl: ''
     }
 });
 
+var Tutorials = require('./view/tutorials');
 window.addEventListener('DOMContentLoaded', function() {
-    app.app = new AppView({ el: document.body });
+    App.model = new (require('./app-model'));
+    App.router = new (require('./app-router'));
+
+    var tutorials = new Tutorials({
+        model: App.model
+    });
+    tutorials.render();
+
+    document.querySelector('.tutorials').appendChild(tutorials.el);
 });
