@@ -1,3 +1,17 @@
 .DS_Store
+
 **/.sass-cache
 **/node_modules
+
+# User-specific files
+*.suo
+*.user
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# vs13 generated content
+packages
