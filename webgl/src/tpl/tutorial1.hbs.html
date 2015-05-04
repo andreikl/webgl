@@ -1,0 +1,29 @@
+<div>
+    <h1>Example 1</h1>
+    <div id="fps">---</div>
+    <canvas id="webglcanvas" style="border: none;" width="500" height="500">
+        Canvas element not supported
+    </canvas>
+    <form id="configure-form" is-ajax="true" ajax-method="get" ajax-url="{{sphereUrl}}">
+        <input type="submit" name="GetSphere" value="Get Sphere" />
+    </form>
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+
+        void main(void) {
+            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        }
+    </script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+
+        uniform vec4 uMaterialColor;
+
+        void main(void) {
+            gl_FragColor = uMaterialColor;
+        }
+    </script>
+</div>

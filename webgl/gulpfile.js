@@ -11,12 +11,15 @@ var path = require('path');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 var browserify = require('browserify');
+var stringify = require('stringify');
+var defineModule = require('gulp-define-module');
 var buffer = require('vinyl-buffer');
 var uglify = require('gulp-uglify');
+var concat = require('gulp-concat');
 var sass = require('gulp-sass');
 
 var SRC_PATH = path.resolve('./src');
-var DEST_PATH = path.resolve('./dest');
+var DEST_PATH = path.resolve('./app');
 gutil.log(gutil.colors.cyan('SRC_PATH:'), SRC_PATH);
 gutil.log(gutil.colors.cyan('DEST_PATH:'), DEST_PATH);
 
@@ -41,10 +44,22 @@ var createServers = function(port, lrport) {
  
 var servers = createServers(8080, 35729);
 
+gulp.task('css', function () {
+    return gulp.src(SRC_PATH + '/scss/main.scss')
+        //.pipe(sourcemaps.init())
+        .pipe(sass())
+        .on('error', gutil.log)
+        //.pipe(plugins.sourcemaps.write(DEST_PATH + '/css'))
+        .pipe(gulp.dest(DEST_PATH + '/css'))
+});
+
 gulp.task('js', function () {
     var b = browserify({
         entries: SRC_PATH + '/js/main.js',
-        debug: true
+        debug: true,
+        transform: stringify({
+            extensions: ['.html'], minify: true
+        })
     });
 
     return b.bundle()
@@ -57,25 +72,16 @@ gulp.task('js', function () {
         .pipe(gulp.dest(DEST_PATH + '/js'));
 });
 
-gulp.task('css', function () {
-    return gulp.src(SRC_PATH + '/scss/main.scss')
-        //.pipe(sourcemaps.init())
-        .pipe(sass())
-        .on('error', gutil.log)
-        //.pipe(plugins.sourcemaps.write(DEST_PATH + '/css'))
-        .pipe(gulp.dest(DEST_PATH + '/css'))
-});
-
-gulp.task('default', ['js', 'css'], function() {
-    gulp.watch([SRC_PATH + '/js/**/*'], function(evt) {
-        gutil.log(gutil.colors.cyan(evt.path), ' is changed');
-        gulp.run('js', function() {
-        });
-    });
-
+gulp.task('default', ['css', 'js'], function() {
     gulp.watch([SRC_PATH + '/scss/**/*'], function(evt) {
         gutil.log(gutil.colors.cyan(evt.path), ' is changed');
         gulp.run('css', function() {
+        });
+    });
+
+    gulp.watch([SRC_PATH + '/js/**/*', SRC_PATH + '/tpl/**/*'], function(evt) {
+        gutil.log(gutil.colors.cyan(evt.path), ' is changed');
+        gulp.run('js', function() {
         });
     });
 

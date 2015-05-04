@@ -3,6 +3,8 @@
 var ViewSwitcher = require('ampersand-view-switcher');
 var tutorial1 = new (require('./tutorial1'));
 var tutorial2 = new (require('./tutorial2'));
+var tutorial3 = new (require('./tutorial3'));
+var tutorial4 = new (require('./tutorial4'));
 var View = require('ampersand-view');
 var App = require('ampersand-app');
 
@@ -27,6 +29,12 @@ var TutorialsView = View.extend({
             break;
             case 'tutorial2':
                 App.pageSwitcher.set(tutorial2);
+            break;
+            case 'tutorial3':
+                App.pageSwitcher.set(tutorial3);
+            break;
+            case 'tutorial4':
+                App.pageSwitcher.set(tutorial4);
             break;
         }
     }

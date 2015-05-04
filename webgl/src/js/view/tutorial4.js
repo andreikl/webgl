@@ -6,8 +6,8 @@ var template = require('./../../tpl/tutorial1.hbs.html')
 
 module.exports = View.extend({
     template: template,
-    pageTitle: 'Tutorial 2!',
+    pageTitle: 'Tutorial 4!',
     initialize: function () {
-        //Utils.addClass(this.el, 'tutorial2');
+        //Utils.addClass(this.el, 'tutorial4');
     }
 });
