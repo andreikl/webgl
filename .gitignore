@@ -1,7 +1,9 @@
 .DS_Store
 
+# node
 **/.sass-cache
 **/node_modules
+npm-debug.log
 
 # User-specific files
 *.suo
