@@ -16,6 +16,7 @@
     "ampersand-view": "^8.0.1",
     "ampersand-view-switcher": "^2.0.0",
     "getconfig": "^2.1.0",
+    "gl-matrix": "^2.3.1",
     "hapi": "^9.0.3",
     "moonboots_hapi": "^5.0.0",
     "stylizer": "^2.1.0",

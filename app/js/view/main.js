@@ -4,7 +4,7 @@ var App = require('ampersand-app');
 var View = require('ampersand-view');
 var ViewSwitcher = require('ampersand-view-switcher');
 
-var Utils = require('./../common/utils');
+var Utils = require('./../utils/utils');
 
 var home = new (require('./home'));
 var tutorial1 = new (require('./tutorial1'));

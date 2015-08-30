@@ -1,6 +1,24 @@
 'use strict';
 
 module.exports = {
+    ajaxGet: function (url, s, f) {
+        var r = new XMLHttpRequest();
+        r.open("GET", "/api/getSphere", true);
+        r.onreadystatechange = function () {
+            if (r.readyState != 4 || r.status != 200) {
+                return;
+            }
+            var data = JSON.parse(r.responseText);
+            s(data);
+        };
+        r.onerror = function (error) {
+            if (f) {
+                f(error);
+            }
+        };
+        r.send();
+    },
+
     addClass: function (el, className) {
         if (el.classList) {
             el.classList.add(className);
@@ -8,6 +26,7 @@ module.exports = {
             el.className += ' ' + className;
         }
     },
+
     toggleClass: function (el, className) {
         if (el.classList) {
             el.classList.toggle(className);
