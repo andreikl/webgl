@@ -19,7 +19,7 @@ var Example1 = function (canvas, fs, vs) {
     this.isRun = false;
 
     WebGlApi.initWebGl(canvas);
-    Matrix.mat4.perspective(45, WebGlApi.viewportWidth / WebGlApi.viewportHeight, 0.1, 100.0, WebGlApi.pMatrix);
+    Matrix.mat4.perspective(WebGlApi.pMatrix, 45, WebGlApi.viewportWidth / WebGlApi.viewportHeight, 0.1, 100.0);
 
     this.initShader = function(gl, fs, vs) {
         var fragmentShader = WebGlApi.getShader(fs);

@@ -60,7 +60,7 @@ server.route({
         var rows = 20;
         var columns = 15;
 
-        var vertices = new Float32Array((2 + (rows - 1) * (columns + 1)) * 8);
+        var vertices = new Array((2 + (rows - 1) * (columns + 1)) * 8);
 
         var step_row_angle = Math.PI / rows;
         var step_row_text = 1.0 / rows;
@@ -117,7 +117,7 @@ server.route({
         vertices[cur_pos + 7] = 1.0;
         cur_pos += 8;
 
-        var triangles = new Uint16Array(2 * columns * (rows - 1) * 3);
+        var triangles = new Array(2 * columns * (rows - 1) * 3);
         cur_pos = 0;
         for (var i = 0; i < columns; i++) {
             triangles[cur_pos + 0] = 0;

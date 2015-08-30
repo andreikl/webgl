@@ -101,11 +101,6 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
         //for (var i = 0; i < 2; i++) {
         var item = globj.buffers[i];
 
-        if (window.a !== 1) {
-            console.log(globj);
-        }
-        window.a = 1;
-
         if (isSkelet === true) {
             WebGlApi.gl.drawElements(WebGlApi.gl.LINE_STRIP, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
         } else {
@@ -175,15 +170,17 @@ WebGlApi.OrbitControl = function (element, radius, minRadius, maxRadius) {
         var y = calcRadius * Math.sin(this.rotateAngleY);
         var z = calcRadius * Math.cos(this.rotateAngleX) * Math.cos(this.rotateAngleY);
         if (this.rotateAngleY < Math.PI / 2 && this.rotateAngleY > -Math.PI / 2) {
-            Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, 1, 0], WebGlApi.vMatrix);
+            //Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, 1, 0], WebGlApi.vMatrix);
+            Matrix.mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
         } else {
-            Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, -1, 0], WebGlApi.vMatrix);
+            //Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, -1, 0], WebGlApi.vMatrix);
+            Matrix.mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, -1, 0]);
         }
 
         //Matrix.mat4.toInverseMat3(WebGlApi.vMatrix, WebGlApi.nMatrix);
-        Matrix.mat3.fromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
-        Matrix.mat3.invert(WebGlApi.nMatrix, WebGlApi.nMatrix);
-        Matrix.mat3.transpose(WebGlApi.nMatrix, WebGlApi.nMatrix);
+        Matrix.mat3.normalFromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
+        //Matrix.mat3.invert(WebGlApi.nMatrix, WebGlApi.nMatrix);
+        //Matrix.mat3.transpose(WebGlApi.nMatrix, WebGlApi.nMatrix);
     }
     this.zoom = function (delta) {
         if (delta > 0) {
