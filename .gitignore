@@ -4,6 +4,8 @@
 **/.sass-cache
 **/node_modules
 npm-debug.log
+.jshintignore
+.jshintrc
 
 # User-specific files
 *.suo

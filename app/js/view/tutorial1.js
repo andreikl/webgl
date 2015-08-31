@@ -19,7 +19,8 @@ var Example1 = function (canvas, fs, vs) {
     this.isRun = false;
 
     WebGlApi.initWebGl(canvas);
-    Matrix.mat4.perspective(WebGlApi.pMatrix, 45, WebGlApi.viewportWidth / WebGlApi.viewportHeight, 0.1, 100.0);
+
+    Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, WebGlApi.viewportWidth / WebGlApi.viewportHeight, 0.1, 100.0);
 
     this.initShader = function(gl, fs, vs) {
         var fragmentShader = WebGlApi.getShader(fs);
@@ -92,9 +93,33 @@ var Example1 = function (canvas, fs, vs) {
 
 module.exports = View.extend({
     template: templates.tutorial1,
+    autoRender: true,
     pageTitle: 'Tutorial 1!',
-    initialize: function () {
-        this.render();
+    props: {
+        app: 'state'
+    },
+    derived: {
+        '_viewportWidth': {   //  Width in px.
+            deps: ['app.windowWidth'],
+            fn: function() {
+                return this.app.windowWidth;
+            }
+        },
+    },
+    bindings: {
+        '_viewportWidth': {
+            type: function (el, value, previousValue) {
+                if (this.example1 && value) {
+                    var style = window.getComputedStyle(this.example1.canvas);
+                    var width = (style.width === "")? 1: parseFloat(style.width.replace(/[^\d^\.]*/g, ''));
+                    var height = (style.height === "")? 1: parseFloat(style.height.replace(/[^\d^\.]*/g, ''));
+                    Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, width / height, 0.1, 100.0);
+                }
+            }
+        }
+    },
+    render: function () {
+        this.renderWithTemplate();
 
         var self = this;
         this.example1 = new Example1(this.query('#webglcanvas'), this.query('#shader-fs'), this.query('#shader-vs'));
@@ -105,5 +130,7 @@ module.exports = View.extend({
         }, function (error) {
             console.log('Error is happend: ', error);
         });
+    },
+    initialize: function () {
     }
 });

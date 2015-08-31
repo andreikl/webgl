@@ -4,12 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "jshint .",
+    "validate": "npm ls"
   },
   "author": "Andrei Klimchuk <andrew.klimchuk@gmail.com>",
   "license": "ISC",
   "devDependencies": {
-    "@lukekarrys/jade-runtime": "^1.11.1",
     "ampersand-app": "^1.0.4",
     "ampersand-model": "^6.0.1",
     "ampersand-router": "^3.0.2",
@@ -21,5 +22,10 @@
     "moonboots_hapi": "^5.0.0",
     "stylizer": "^2.1.0",
     "templatizer": "^2.0.2"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "validate",
+    "test"
+  ]
 }
