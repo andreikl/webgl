@@ -7,9 +7,10 @@ var Utils = require('./../utils/utils');
 var WebGlApi = require('./../utils/webglhelpers');
 var templates = require('./../templates.js');
 
-var Example1 = function (canvas, fs, vs) {
+var Example1 = function (canvas, shaderProgram) {
     this.globject = null;
     this.canvas = canvas;
+    this.shaderProgram = shaderProgram;
 
     var scope = this;
     this.control = null;
@@ -18,30 +19,6 @@ var Example1 = function (canvas, fs, vs) {
 
     this.isRun = false;
 
-    WebGlApi.initWebGl(canvas);
-
-    Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, WebGlApi.viewportWidth / WebGlApi.viewportHeight, 0.1, 100.0);
-
-    this.initShader = function(gl, fs, vs) {
-        var fragmentShader = WebGlApi.getShader(fs);
-        var vertexShader = WebGlApi.getShader(vs);
-        var shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertexShader);
-        gl.attachShader(shaderProgram, fragmentShader);
-        gl.linkProgram(shaderProgram);
-        gl.useProgram(shaderProgram);
-
-        // get pointers to the shader params
-        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-
-        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
-        return shaderProgram;
-    }
-    this.shaderProgram = this.initShader(WebGlApi.gl, fs, vs);
 
     this.initData = function (sphere) {
         var verticesBuffer = WebGlApi.gl.createBuffer();
@@ -109,20 +86,28 @@ module.exports = View.extend({
     bindings: {
         '_viewportWidth': {
             type: function (el, value, previousValue) {
-                if (this.example1 && value) {
-                    var style = window.getComputedStyle(this.example1.canvas);
-                    var width = (style.width === "")? 1: parseFloat(style.width.replace(/[^\d^\.]*/g, ''));
-                    var height = (style.height === "")? 1: parseFloat(style.height.replace(/[^\d^\.]*/g, ''));
-                    Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, width / height, 0.1, 100.0);
+                if (this.canvas) {
+                    this._setPerspective(this.canvas);
                 }
             }
         }
     },
     render: function () {
+        var self = this;
+
         this.renderWithTemplate();
 
-        var self = this;
-        this.example1 = new Example1(this.query('#webglcanvas'), this.query('#shader-fs'), this.query('#shader-vs'));
+        // singleton
+        if (!this.canvas) {
+            this.canvas = this.query('#webglcanvas');
+            WebGlApi.initWebGl(this.canvas);
+
+            this.shaderProgram = this._initShaders(WebGlApi.gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+            this._setPerspective(this.canvas);
+
+            this.example1 = new Example1(this.canvas, this.shaderProgram);
+        }
 
         Utils.ajaxGet('/api/getSphere', function (data) {
             self.example1.initData(data);
@@ -132,5 +117,32 @@ module.exports = View.extend({
         });
     },
     initialize: function () {
+    },
+    _setPerspective: function (canvas) {
+        var style = window.getComputedStyle(canvas);
+        var width = (style.width === "")? 1: parseFloat(style.width.replace(/[^\d^\.]*/g, ''));
+        var height = (style.height === "")? 1: parseFloat(style.height.replace(/[^\d^\.]*/g, ''));
+        console.log(width + ', ' + height);
+        //0.7854 = 2*pi/8
+        Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, width / height, 0.1, 100.0);
+    },
+    _initShaders: function(gl, fs, vs) {
+        var fragmentShader = WebGlApi.getShader(fs);
+        var vertexShader = WebGlApi.getShader(vs);
+        var shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+        gl.useProgram(shaderProgram);
+
+        // get pointers to the shader params
+        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+
+        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
+        return shaderProgram;
     }
 });

@@ -4,9 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "jshint .",
-    "validate": "npm ls"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrei Klimchuk <andrew.klimchuk@gmail.com>",
   "license": "ISC",
@@ -22,10 +20,5 @@
     "moonboots_hapi": "^5.0.0",
     "stylizer": "^2.1.0",
     "templatizer": "^2.0.2"
-  },
-  "pre-commit": [
-    "lint",
-    "validate",
-    "test"
-  ]
+  }
 }
