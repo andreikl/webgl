@@ -33,7 +33,6 @@ var TutorialsView = View.extend({
         this.windowHeight = window.innerHeight;
         this.windowWidth = window.innerWidth;
         this.windowOffset = window.pageYOffset;
-        console.log(this.windowHeight, this.windowWidth, this.windowOffset);
     },
 
     _handleRoute: function (p) {

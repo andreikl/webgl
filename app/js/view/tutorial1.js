@@ -68,26 +68,51 @@ var Example1 = function (canvas, shaderProgram) {
     }
 };
 
+var Canvas = View.extend({
+    props: {
+        app: 'state',
+    },
+    events: {
+        'resize': '_resizeHandler'
+    },
+    derived: {
+        'size': {   //  Width in px.
+            deps: ['app.windowWidth'],
+            fn: function() {
+                return this._getViewportSize();
+            }
+        },
+    },
+    '_getViewportSize': function () {
+        var style = window.getComputedStyle(this.el);
+        return {
+            width: (style.width === "")? 1: parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
+            height: (style.height === "")? 1: parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
+        };
+    },
+});
+
 module.exports = View.extend({
     template: templates.tutorial1,
     autoRender: true,
     pageTitle: 'Tutorial 1!',
     props: {
-        app: 'state'
+        app: 'state',
+        canvas: 'state'
     },
-    derived: {
+    /*derived: {
         '_viewportWidth': {   //  Width in px.
             deps: ['app.windowWidth'],
             fn: function() {
                 return this.app.windowWidth;
             }
         },
-    },
+    },*/
     bindings: {
-        '_viewportWidth': {
+        'canvas.size': {
             type: function (el, value, previousValue) {
-                if (this.canvas) {
-                    this._setPerspective(this.canvas);
+                if (value) {
+                    this._setPerspective(value);
                 }
             }
         }
@@ -99,14 +124,22 @@ module.exports = View.extend({
 
         // singleton
         if (!this.canvas) {
-            this.canvas = this.query('#webglcanvas');
-            WebGlApi.initWebGl(this.canvas);
+            var canvas = this.query('#webglcanvas');
+            WebGlApi.initWebGl(canvas);
+
+            this.canvas = new Canvas({
+                el: canvas,
+                app: this.app
+            }); 
+            
 
             this.shaderProgram = this._initShaders(WebGlApi.gl, this.query('#shader-fs'), this.query('#shader-vs'));
 
-            this._setPerspective(this.canvas);
+            this.example1 = new Example1(this.canvas.el, this.shaderProgram);
 
-            this.example1 = new Example1(this.canvas, this.shaderProgram);
+            setTimeout(function() {
+                self._setPerspective(self.canvas._getViewportSize());
+            }, 10);
         }
 
         Utils.ajaxGet('/api/getSphere', function (data) {
@@ -118,13 +151,10 @@ module.exports = View.extend({
     },
     initialize: function () {
     },
-    _setPerspective: function (canvas) {
-        var style = window.getComputedStyle(canvas);
-        var width = (style.width === "")? 1: parseFloat(style.width.replace(/[^\d^\.]*/g, ''));
-        var height = (style.height === "")? 1: parseFloat(style.height.replace(/[^\d^\.]*/g, ''));
-        console.log(width + ', ' + height);
+    _setPerspective: function (size) {
+        console.log('_setPerspective: ', size)
         //0.7854 = 2*pi/8
-        Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, width / height, 0.1, 100.0);
+        Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
     },
     _initShaders: function(gl, fs, vs) {
         var fragmentShader = WebGlApi.getShader(fs);
