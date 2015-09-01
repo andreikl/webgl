@@ -1,0 +1,19 @@
+{
+  "name": "webpack_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "hapi": "^9.0.3",
+    "inert": "^3.0.1",
+    "babel-loader": "^5.3.2",
+    "sass-loader": "^2.0.1",
+    "react": "^0.13.3",
+    "webpack": "^1.12.0"
+  }
+}
