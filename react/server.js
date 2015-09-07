@@ -9,34 +9,45 @@ server.connection({
 
 var plugin = {
     register: function (server, options, next) {
-        webpack(options, function (err, statsStr) {
+        var compiler = webpack(options);
+        /*compiler.run(function (err, statsStr) {
             if (err) {
+                console.log('complile error happened!', err);
                 return next(err);
             }
-
-            /*var stats = statsStr.toJson();
-            console.log(statsStr);
-            var paths = stats.assets.map(function (asset) {
-                var _path = '/' + asset.name;
-
-                console.log(_path);
-
-                server.route({
-                    method: 'GET',
-                    path: _path,
-                    handler: {
-                        file: asset.name,
-                    },
-                });
-                return _path;
-            });*/
-            /*_.extend(server.app, {
-                webpack: {
-                    configuration: options,
-                    stats: stats,
-                    paths: paths,
-                },
-            });*/
+            var stats = statsStr.toJson();
+            if (stats.errors.length > 0) {
+                console.log('errors during complilation is happened!', stats.errors);
+                return next(err);
+            }
+             if(stats.warning.length > 0) {
+                console.log('warnings during complilation is happened!', stats.warning);
+             }
+            return next();
+        });*/
+        compiler.watch({ // watch options:
+            aggregateTimeout: 300, // wait so long for more changes
+            poll: true // use polling instead of native watchers
+        }, function(err, statsStr) {
+            if (err) {
+                console.log('\x1b[30m', 'Building is failure' ,'\x1b[0m', err);
+                return next(err);
+            }
+            var stats = statsStr.toJson();
+            if (stats.errors.length > 0) {
+                for (var i in stats.errors) {
+                    console.log('\x1b[31m', 'Building is failure' ,'\x1b[0m');
+                    console.log(stats.errors[i]);
+                }
+                return next(err);
+            }
+            if(stats.warnings.length > 0) {
+                for (var i in stats.warnings) {
+                    console.log('\x1b[33m', 'warning:' ,'\x1b[0m');
+                    console.log(stats.warnings[i]);
+                }
+            }
+            console.log('\x1b[32m', 'Building is successfull' ,'\x1b[0m');
             return next();
         });
     }
@@ -78,7 +89,8 @@ server.register([{
                         'NODE_ENV': '"production"'
                     }
                 })*/
-            ]
+            ],
+            errorDetails: true
         }
     }
 ], function() {
