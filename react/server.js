@@ -68,11 +68,11 @@ server.register([{
                 ]
             },
             plugins: [
-                new webpack.optimize.UglifyJsPlugin({
+                /*new webpack.optimize.UglifyJsPlugin({
                     compress: {
                         warnings: false
                     }
-                })
+                })*/
                 /*new webpack.DefinePlugin({
                     'process.env': {
                         'NODE_ENV': '"production"'
@@ -99,6 +99,14 @@ server.register([{
 server.route({
     method: 'GET',
     path: '/index.html',
+    handler: {
+        file: 'index.html',
+    },
+});
+
+server.route({
+    method: 'GET',
+    path: '/',
     handler: {
         file: 'index.html',
     },
