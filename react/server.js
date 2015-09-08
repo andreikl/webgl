@@ -2,7 +2,7 @@ var Hapi = require('hapi');
 var webpack = require('webpack');
 var config = require('getconfig');
 
-console.log('config: \x1b[32m', config, '\x1b[0m');
+console.log('\x1b[32m', 'Config isDev: ' + config.isDev, '\x1b[0m');
 
 var server = new Hapi.Server();
 server.connection({ 
