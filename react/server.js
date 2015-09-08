@@ -1,5 +1,8 @@
 var Hapi = require('hapi');
 var webpack = require('webpack');
+var config = require('getconfig');
+
+console.log('config: \x1b[32m', config, '\x1b[0m');
 
 var server = new Hapi.Server();
 server.connection({ 
@@ -79,16 +82,26 @@ server.register([{
                 ]
             },
             plugins: [
-                /*new webpack.optimize.UglifyJsPlugin({
-                    compress: {
-                        warnings: false
+                (function () {
+                    if (config.isDev) {
+                        return function () {};
+                    } else {
+                        return new webpack.optimize.UglifyJsPlugin({
+                            compress: { warnings: false }
+                        });
                     }
-                })*/
-                /*new webpack.DefinePlugin({
-                    'process.env': {
-                        'NODE_ENV': '"production"'
+                })(),
+                (function () {
+                    if (config.isDev) {
+                        return function () {};
+                    } else {
+                        return new webpack.DefinePlugin({
+                            'process.env': {
+                                'NODE_ENV': '"production"'
+                            }
+                        });
                     }
-                })*/
+                })()
             ],
             errorDetails: true
         }

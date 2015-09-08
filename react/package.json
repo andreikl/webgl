@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "prebuild": "NODE_ENV=production && echo \"Build:\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
