@@ -1,6 +1,6 @@
 import React from 'react';
 import Matrix from 'gl-matrix';
-import WebGlApi from './../utils/webglhelpers';
+import WebGlApi from './../utils/webglhelpers.jsx';
 
 class Example1 {
     constructor (canvas, shaderProgram) {
@@ -68,32 +68,7 @@ class Example1 {
 export default React.createClass({
     displayName: 'tutorial1Page',
     render () {
-        return <div class="tutorial1">
-            <h1>Example 1</h1>
-            <div id="fps">---</div>
-            <canvas id="webglcanvas" style="border: 'none'; width: '100%'; height: '100%';">Canvas element is not supported</canvas>
-            <form id="configure-form">
-                <input type="submit" name="GetSphere" value="Get Sphere"></input>
-            </form>
-            <script id="hader-vs" type="x-shader/x-vertex">
-                attribute vec3 aVertexPosition;
-
-                uniform mat4 uMVMatrix;
-                uniform mat4 uPMatrix;
-
-                void main(void) {
-                    gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-                }
-            </script>
-            <script id="shader-fs" type="x-shader/x-fragment">
-                precision mediump float;
-
-                uniform vec4 uMaterialColor;
-
-                void main(void) {
-                    gl_FragColor = uMaterialColor;
-                }
-            </script>
+        return <div>
         </div>
     }
 })

@@ -69,7 +69,7 @@ server.register([{
     {
         register: plugin,
         options: {
-            entry: "./app/app.js",
+            entry: "./app/app.jsx",
             output: {
                 path: __dirname + '/build',
                 filename: "bundle.js"
@@ -77,8 +77,9 @@ server.register([{
             //devtool: "inline-source-map",
             module: {
                 loaders: [
-                    { test: /\.js$/, exclude: "/node_modules/", loader: "babel-loader" },
-                    { test: /\.scss$/, loader: 'style!css!sass' }
+                    { test: /\.jsx$/, exclude: "/node_modules/", loader: "babel-loader" },
+                    { test: /\.scss$/, exclude: "/node_modules/", loader: 'style!css!sass' },
+                    { test: /\.hbs$/, exclude: "/node_modules/", loader: "handlebars-loader" }
                 ]
             },
             plugins: [
@@ -119,14 +120,6 @@ server.register([{
 
         console.log('Server running at:', server.info.uri);
     });
-});
-
-server.route({
-    method: 'GET',
-    path: '/index.html',
-    handler: {
-        file: 'index.html',
-    },
 });
 
 server.route({
