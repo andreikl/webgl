@@ -1,6 +1,7 @@
 import ViewSwitcher from 'ampersand-view-switcher';
 import View from 'ampersand-view';
 
+import Tutorial1Page from './tutorial1.jsx';
 import HomePage from './home.jsx';
 
 export default View.extend({
@@ -28,8 +29,14 @@ export default View.extend({
     _handleRoute (p) {
         console.log('handleRoute has been called: ', this.model.view);
         switch (this.model.view) {
+            case 'tutorial1':
+                if (!this.tutorial1) {
+                    this.tutorial1 = new Tutorial1Page({main: this});
+                }
+                this.pages.set(this.tutorial1);
+                break;
+
             default:
-                this.container.className = this.model.view;
                 if (!this.home) {
                     this.home = new HomePage({main: this});
                 }

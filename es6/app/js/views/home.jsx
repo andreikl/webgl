@@ -1,8 +1,8 @@
 import View from 'ampersand-view';
-import template from './../../tpl/home.hbs';
+import homeHtml from './../../tpl/home.html';
 
 export default View.extend({
-    template: template(),
+    template: homeHtml,
     pageTitle: 'Home',
     initialize: function () {
     }
