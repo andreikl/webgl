@@ -54,8 +54,6 @@ class Example1 {
     }
 
     tick () {
-        console.log(this);
-
         if (this.isRun !== true) { return; }
 
         this.fps.update();
