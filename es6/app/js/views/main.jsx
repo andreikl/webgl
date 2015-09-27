@@ -2,10 +2,11 @@ import ViewSwitcher from 'ampersand-view-switcher';
 import View from 'ampersand-view';
 
 import Tutorial1Page from './tutorial1.jsx';
+import Tutorial2Page from './tutorial2.jsx';
 import HomePage from './home.jsx';
 
 export default View.extend({
-    template: '<div id="#content"><h1>Tutorials</h1><div role="page-container"></div></div>',
+    template: '<div class="container" data-hook="page-container"></div>',
     props: {
         windowHeight: ['number', true, window.innerHeight],
         windowWidth: ['number', true, window.innerWidth],
@@ -15,7 +16,7 @@ export default View.extend({
     initialize () {
         this.renderWithTemplate();
 
-        this.container = this.query("[role='page-container']");
+        this.container = this.queryByHook('page-container');
         this.pages = new ViewSwitcher(this.container, {});
 
         this.listenTo(this.model, 'change:view', this._handleRoute);
@@ -34,6 +35,13 @@ export default View.extend({
                     this.tutorial1 = new Tutorial1Page({main: this});
                 }
                 this.pages.set(this.tutorial1);
+                break;
+
+            case 'tutorial2':
+                if (!this.tutorial2) {
+                    this.tutorial2 = new Tutorial2Page({main: this});
+                }
+                this.pages.set(this.tutorial2);
                 break;
 
             default:

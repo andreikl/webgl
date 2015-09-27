@@ -16,21 +16,6 @@ server.connection({
 var plugin = {
     register: function (server, options, next) {
         var compiler = webpack(options);
-        /*compiler.run(function (err, statsStr) {
-            if (err) {
-                console.log('complile error happened!', err);
-                return next(err);
-            }
-            var stats = statsStr.toJson();
-            if (stats.errors.length > 0) {
-                console.log('errors during complilation is happened!', stats.errors);
-                return next(err);
-            }
-             if(stats.warning.length > 0) {
-                console.log('warnings during complilation is happened!', stats.warning);
-             }
-            return next();
-        });*/
         compiler.watch({ // watch options:
             aggregateTimeout: 300, // wait so long for more changes
             poll: true // use polling instead of native watchers
@@ -54,8 +39,8 @@ var plugin = {
                 }
             }
             console.log('\x1b[32m', 'Building is successfull' ,'\x1b[0m');
-            return next();
         });
+        next();
     }
 }
 

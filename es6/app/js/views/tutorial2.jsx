@@ -4,7 +4,7 @@ import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
 import Matrix from 'gl-matrix';
 
-import tutorial1Html from './../../tpl/tutorial1.html';
+import tutorial1Html from './../../tpl/tutorial2.html';
 
 var Canvas = View.extend({
     props: {
@@ -29,7 +29,7 @@ var Canvas = View.extend({
 
 export default View.extend({
     template: tutorial1Html,
-    pageTitle: 'Tutorial 2!',
+    pageTitle: 'Tutorial 1!',
     props: {
         main: 'state',
         canvas: 'state'
@@ -94,10 +94,20 @@ export default View.extend({
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
 
         shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
+        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
         return shaderProgram;
     },
     _initData (sphere) {
@@ -127,8 +137,17 @@ export default View.extend({
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);
 
-        WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 1.0, 0.0, 0.0, 1.0);
-        WebGlApi.drawFrame(this.shaderProgram, this.globject, true);
+        WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+        WebGlApi.gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.2, 0.2, 0.2);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.7, 0.7, 0.7);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+        var lightPos = [0.0, 0.0, 3.0]
+        Matrix.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
+        WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+        WebGlApi.drawFrame(this.shaderProgram, this.globject, false);
 
         requestAnimFrame(() => { this._tick(); });
     }

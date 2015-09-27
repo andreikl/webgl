@@ -1,6 +1,21 @@
-﻿'use strict';
+﻿import Matrix from 'gl-matrix';
 
-var Matrix = require('gl-matrix');
+console.log(Matrix.mat4);
+console.log(Matrix.mat4.prototype);
+
+Matrix.mat4.multiplyVec3 = function (mat, vec, dest) {
+    if (!dest) { 
+        dest = vec;
+    }
+
+    var x = vec[0], y = vec[1], z = vec[2];
+    
+    dest[0] = mat[0]*x + mat[4]*y + mat[8]*z + mat[12];
+    dest[1] = mat[1]*x + mat[5]*y + mat[9]*z + mat[13];
+    dest[2] = mat[2]*x + mat[6]*y + mat[10]*z + mat[14];
+    
+    return dest;
+}
 
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
