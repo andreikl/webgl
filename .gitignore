@@ -4,18 +4,3 @@
 **/.sass-cache
 **/node_modules
 npm-debug.log
-.jshintignore
-.jshintrc
-
-# User-specific files
-*.suo
-*.user
-
-# Build results
-[Dd]ebug/
-[Rr]elease/
-[Bb]in/
-[Oo]bj/
-
-# vs13 generated content
-packages
