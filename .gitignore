@@ -1,6 +1,6 @@
 .DS_Store
 
 # node
-**/.sass-cache
-**/node_modules
+.sass-cache
+node_modules
 npm-debug.log
