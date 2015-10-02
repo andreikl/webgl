@@ -59,7 +59,7 @@ server.register([{
         options: {
             entry: "./app/app.jsx",
             output: {
-                path: __dirname + '/build',
+                path: __dirname + '/bundle',
                 filename: "bundle.js"
             },
             //devtool: "inline-source-map",
@@ -120,10 +120,21 @@ server.route({
 
 server.route({
     method: 'GET',
-    path: '/build/{param*}',
+    path: '/bundle/{param*}',
     handler: {
         directory: {
-            path: 'build',
+            path: './bundle',
+            listing: true
+        }
+    },
+});
+
+server.route({
+    method: 'GET',
+    path: '/images/{param*}',
+    handler: {
+        directory: {
+            path: './images',
             listing: true
         }
     },
@@ -138,8 +149,8 @@ server.route({
     method: 'GET',
     path:'/api/getSphere', 
     handler: function (request, reply) {
-        var rows = 20;
-        var columns = 15;
+        var rows = 30;
+        var columns = 25;
 
         var vertices = new Array((2 + (rows - 1) * (columns + 1)) * 8);
 
@@ -239,7 +250,7 @@ server.route({
         objectData.types = new Array();
         objectData.types[0] = { dataType: WebGlApi.DATA_TYPE.COORDINATES, size: 12 };
         objectData.types[1] = { dataType: WebGlApi.DATA_TYPE.NORMALS, size: 12 };
-        objectData.types[2] = { dataType: WebGlApi.DATA_TYPE.TEXTURE, size: 8, tag: "Content/img/earth.jpg" };
+        objectData.types[2] = { dataType: WebGlApi.DATA_TYPE.TEXTURE, size: 8, tag: "images/earth.jpg" };
         objectData.buffers = buffers;
         objectData.vertices = vertices;
         objectData.triangles = triangles;

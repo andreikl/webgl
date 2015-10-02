@@ -1,11 +1,11 @@
 ﻿<div class="tutorial3">
     <h1>Example 3</h1>
-    <div id="fps">---</div>
-    <canvas id="webglcanvas" style="border: 'none'; width: '100%'; height: '100%';">Canvas element is not supported</canvas>
+    <div data-hook="fps">---</div>
+    <canvas data-hook="canvas" width="600" height="600">Canvas element is not supported</canvas>
     <form id="configure-form">
         <input type="submit" name="GetSphere" value="Get Sphere"></input>
     </form>
-    <script id="hader-vs" type="x-shader/x-vertex">
+    <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
         attribute vec3 aVertexNormal;
         attribute vec2 aVertexTexture;
@@ -31,7 +31,7 @@
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
-        precision mediump float;
+        precision highp float;
 
         varying vec2 vVertexTexture;
         varying vec3 vNormalEyeVector;

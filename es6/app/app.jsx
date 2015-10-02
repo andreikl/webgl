@@ -15,7 +15,7 @@ window.app = {
         });
         this.router.history.start({pushState: false});
     },
-    options: {
+    config: {
         baseUrl: ''
     }
 };

@@ -3,6 +3,8 @@ import View from 'ampersand-view';
 
 import Tutorial1Page from './tutorial1.jsx';
 import Tutorial2Page from './tutorial2.jsx';
+import Tutorial3Page from './tutorial3.jsx';
+import Tutorial4Page from './tutorial4.jsx';
 import HomePage from './home.jsx';
 
 export default View.extend({
@@ -42,6 +44,13 @@ export default View.extend({
                     this.tutorial2 = new Tutorial2Page({main: this});
                 }
                 this.pages.set(this.tutorial2);
+                break;
+
+            case 'tutorial3':
+                if (!this.tutorial3) {
+                    this.tutorial3 = new Tutorial3Page({main: this});
+                }
+                this.pages.set(this.tutorial3);
                 break;
 
             default:

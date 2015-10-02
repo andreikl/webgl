@@ -4,7 +4,7 @@ import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
 import Matrix from 'gl-matrix';
 
-import tutorial1Html from './../../tpl/tutorial2.html';
+import tutorial2Html from './../../tpl/tutorial2.html';
 
 var Canvas = View.extend({
     props: {
@@ -28,8 +28,8 @@ var Canvas = View.extend({
 });
 
 export default View.extend({
-    template: tutorial1Html,
-    pageTitle: 'Tutorial 1!',
+    template: tutorial2Html,
+    pageTitle: 'Tutorial 2!',
     props: {
         main: 'state',
         canvas: 'state'

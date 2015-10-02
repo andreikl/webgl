@@ -4,7 +4,7 @@ import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
 import Matrix from 'gl-matrix';
 
-import tutorial1Html from './../../tpl/tutorial1.html';
+import tutorial3Html from './../../tpl/tutorial3.html';
 
 var Canvas = View.extend({
     props: {
@@ -28,8 +28,8 @@ var Canvas = View.extend({
 });
 
 export default View.extend({
-    template: tutorial1Html,
-    pageTitle: 'Tutorial 2!',
+    template: tutorial3Html,
+    pageTitle: 'Tutorial 3!',
     props: {
         main: 'state',
         canvas: 'state'
@@ -79,7 +79,6 @@ export default View.extend({
         //0.7854 = 2*pi/8
         if (size.width && size.height) {
             Matrix.mat4.perspective(WebGlApi.pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
-            //Matrix.mat4.perspective(45, size.width / size.height, 0.1, 100.0, WebGlApi.pMatrix);
         }
     },
     _initShaders (gl, fs, vs) {
@@ -95,11 +94,43 @@ export default View.extend({
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
+        shaderProgram.vertexTextureAttribute = gl.getAttribLocation(shaderProgram, "aVertexTexture");
+        gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
+
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
 
-        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
+        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
         return shaderProgram;
+
+    },
+    _initTexture (url, texture) {
+        var image = new Image();
+        image.onload = function () {
+            WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, texture);
+            //WebGlApi.gl.pixelStorei(WebGlApi.gl.UNPACK_FLIP_Y_WEBGL, true);
+  
+            WebGlApi.gl.texImage2D(WebGlApi.gl.TEXTURE_2D, 0, WebGlApi.gl.RGBA, WebGlApi.gl.RGBA, WebGlApi.gl.UNSIGNED_BYTE, image);
+                
+            WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_MAG_FILTER, WebGlApi.gl.LINEAR);
+            WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_MIN_FILTER, WebGlApi.gl.LINEAR);
+            WebGlApi.gl.generateMipmap(WebGlApi.gl.TEXTURE_2D);
+  
+            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_S, WebGlApi.gl.MIRRORED_REPEAT);
+            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_T, WebGlApi.gl.MIRRORED_REPEAT);
+            WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, null); 
+        }
+        image.src = url;
     },
     _initData (sphere) {
         var verticesBuffer = WebGlApi.gl.createBuffer();
@@ -119,7 +150,12 @@ export default View.extend({
         this.globject.stride = 0;
         for (var i = 0; i < sphere.types.length; i++) {
             this.globject.stride += sphere.types[i].size;
+            if (this.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
+                this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
+            }
         }
+        this.globject.texture = WebGlApi.gl.createTexture();
+        this._initTexture(this.globject.textureUrl, this.globject.texture)
     },
     _tick () {
         if (this.isRun !== true) { return; }
@@ -128,8 +164,17 @@ export default View.extend({
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);
 
-        WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 1.0, 0.0, 0.0, 1.0);
-        WebGlApi.drawFrame(this.shaderProgram, this.globject, true);
+        WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+        WebGlApi.gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+        var lightPos = [0.0, 0.0, 3.0]
+        Matrix.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
+        WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+        WebGlApi.drawFrame(this.shaderProgram, this.globject, false);
 
         requestAnimFrame(() => { this._tick(); });
     }

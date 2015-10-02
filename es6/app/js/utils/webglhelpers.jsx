@@ -1,8 +1,5 @@
 ﻿import Matrix from 'gl-matrix';
 
-console.log(Matrix.mat4);
-console.log(Matrix.mat4.prototype);
-
 Matrix.mat4.multiplyVec3 = function (mat, vec, dest) {
     if (!dest) { 
         dest = vec;
@@ -33,26 +30,30 @@ WebGlApi.DATA_TYPE = { COORDINATES: 1, NORMALS: 2, TEXTURE: 3 };
 WebGlApi.BUFFER_TYPE = { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 };
 
 WebGlApi.initWebGl = function (canvas) {
-    try {
+    if (!WebGlApi.gl) {
         WebGlApi.gl = canvas.getContext("webgl");
-        WebGlApi.viewportWidth = canvas.width;
-        WebGlApi.viewportHeight = canvas.height;
-
-        WebGlApi.pMatrix = Matrix.mat4.create();
-        Matrix.mat4.identity(WebGlApi.pMatrix);
-
-        WebGlApi.vMatrix = Matrix.mat4.create();
-        Matrix.mat4.identity(WebGlApi.vMatrix);
-
-        WebGlApi.nMatrix = Matrix.mat3.create();
-        Matrix.mat3.identity(WebGlApi.nMatrix);
-
-        WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
-    } catch (e) { }
+    }
+    if (!WebGlApi.gl) {
+        WebGlApi.gl = canvas.getContext("experimental-webgl");
+    }
     if (!WebGlApi.gl) {
         alert("Failed to create WebGL context!");
+        return;
     }
+    WebGlApi.viewportWidth = canvas.width;
+    WebGlApi.viewportHeight = canvas.height;
+
+    WebGlApi.pMatrix = Matrix.mat4.create();
+    Matrix.mat4.identity(WebGlApi.pMatrix);
+
+    WebGlApi.vMatrix = Matrix.mat4.create();
+    Matrix.mat4.identity(WebGlApi.vMatrix);
+
+    WebGlApi.nMatrix = Matrix.mat3.create();
+    Matrix.mat3.identity(WebGlApi.nMatrix);
+
+    WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
 }
 
 WebGlApi.getShader = function(shaderScript) {
@@ -194,8 +195,6 @@ WebGlApi.OrbitControl = function (element, radius, minRadius, maxRadius) {
 
         //Matrix.mat4.toInverseMat3(WebGlApi.vMatrix, WebGlApi.nMatrix);
         Matrix.mat3.normalFromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
-        //Matrix.mat3.invert(WebGlApi.nMatrix, WebGlApi.nMatrix);
-        //Matrix.mat3.transpose(WebGlApi.nMatrix, WebGlApi.nMatrix);
     }
     this.zoom = function (delta) {
         if (delta > 0) {

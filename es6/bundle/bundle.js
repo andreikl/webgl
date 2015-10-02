@@ -60,7 +60,7 @@
 
 	var _jsViewsMainJsx2 = _interopRequireDefault(_jsViewsMainJsx);
 
-	__webpack_require__(379);
+	__webpack_require__(385);
 
 	window.app = {
 	    init: function init($el) {
@@ -72,7 +72,7 @@
 	        });
 	        this.router.history.start({ pushState: false });
 	    },
-	    options: {
+	    config: {
 	        baseUrl: ''
 	    }
 	};
@@ -18494,11 +18494,19 @@
 
 	var _tutorial1Jsx2 = _interopRequireDefault(_tutorial1Jsx);
 
-	var _tutorial2Jsx = __webpack_require__(384);
+	var _tutorial2Jsx = __webpack_require__(377);
 
 	var _tutorial2Jsx2 = _interopRequireDefault(_tutorial2Jsx);
 
-	var _homeJsx = __webpack_require__(377);
+	var _tutorial3Jsx = __webpack_require__(379);
+
+	var _tutorial3Jsx2 = _interopRequireDefault(_tutorial3Jsx);
+
+	var _tutorial4Jsx = __webpack_require__(381);
+
+	var _tutorial4Jsx2 = _interopRequireDefault(_tutorial4Jsx);
+
+	var _homeJsx = __webpack_require__(383);
 
 	var _homeJsx2 = _interopRequireDefault(_homeJsx);
 
@@ -18539,6 +18547,13 @@
 	                    this.tutorial2 = new _tutorial2Jsx2['default']({ main: this });
 	                }
 	                this.pages.set(this.tutorial2);
+	                break;
+
+	            case 'tutorial3':
+	                if (!this.tutorial3) {
+	                    this.tutorial3 = new _tutorial3Jsx2['default']({ main: this });
+	                }
+	                this.pages.set(this.tutorial3);
 	                break;
 
 	            default:
@@ -39808,6 +39823,7 @@
 	        //0.7854 = 2*pi/8
 	        if (size.width && size.height) {
 	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
+	            //Matrix.mat4.perspective(45, size.width / size.height, 0.1, 100.0, WebGlApi.pMatrix);
 	        }
 	    },
 	    _initShaders: function _initShaders(gl, fs, vs) {
@@ -39882,9 +39898,6 @@
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
-	console.log(_glMatrix2["default"].mat4);
-	console.log(_glMatrix2["default"].mat4.prototype);
-
 	_glMatrix2["default"].mat4.multiplyVec3 = function (mat, vec, dest) {
 	    if (!dest) {
 	        dest = vec;
@@ -39913,26 +39926,30 @@
 	WebGlApi.BUFFER_TYPE = { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 };
 
 	WebGlApi.initWebGl = function (canvas) {
-	    try {
+	    if (!WebGlApi.gl) {
 	        WebGlApi.gl = canvas.getContext("webgl");
-	        WebGlApi.viewportWidth = canvas.width;
-	        WebGlApi.viewportHeight = canvas.height;
-
-	        WebGlApi.pMatrix = _glMatrix2["default"].mat4.create();
-	        _glMatrix2["default"].mat4.identity(WebGlApi.pMatrix);
-
-	        WebGlApi.vMatrix = _glMatrix2["default"].mat4.create();
-	        _glMatrix2["default"].mat4.identity(WebGlApi.vMatrix);
-
-	        WebGlApi.nMatrix = _glMatrix2["default"].mat3.create();
-	        _glMatrix2["default"].mat3.identity(WebGlApi.nMatrix);
-
-	        WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	        WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
-	    } catch (e) {}
+	    }
+	    if (!WebGlApi.gl) {
+	        WebGlApi.gl = canvas.getContext("experimental-webgl");
+	    }
 	    if (!WebGlApi.gl) {
 	        alert("Failed to create WebGL context!");
+	        return;
 	    }
+	    WebGlApi.viewportWidth = canvas.width;
+	    WebGlApi.viewportHeight = canvas.height;
+
+	    WebGlApi.pMatrix = _glMatrix2["default"].mat4.create();
+	    _glMatrix2["default"].mat4.identity(WebGlApi.pMatrix);
+
+	    WebGlApi.vMatrix = _glMatrix2["default"].mat4.create();
+	    _glMatrix2["default"].mat4.identity(WebGlApi.vMatrix);
+
+	    WebGlApi.nMatrix = _glMatrix2["default"].mat3.create();
+	    _glMatrix2["default"].mat3.identity(WebGlApi.nMatrix);
+
+	    WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	    WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
 	};
 
 	WebGlApi.getShader = function (shaderScript) {
@@ -40073,8 +40090,6 @@
 
 	        //Matrix.mat4.toInverseMat3(WebGlApi.vMatrix, WebGlApi.nMatrix);
 	        _glMatrix2["default"].mat3.normalFromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
-	        //Matrix.mat3.invert(WebGlApi.nMatrix, WebGlApi.nMatrix);
-	        //Matrix.mat3.transpose(WebGlApi.nMatrix, WebGlApi.nMatrix);
 	    };
 	    this.zoom = function (delta) {
 	        if (delta > 0) {
@@ -45304,7 +45319,7 @@
 /* 376 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"tutorial1\">\r\n    <h1>Example 1</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n\r\n        void main(void) {\r\n            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision mediump float;\r\n\r\n        uniform vec4 uMaterialColor;\r\n\r\n        void main(void) {\r\n            gl_FragColor = uMaterialColor;\r\n        }\r\n    </script>\r\n</div>\r\n";
+	module.exports = "<div class=\"tutorial1\">\r\n    <h1>Example 1</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"600\" height=\"600\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n\r\n        void main(void) {\r\n            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision mediump float;\r\n\r\n        uniform vec4 uMaterialColor;\r\n\r\n        void main(void) {\r\n            gl_FragColor = uMaterialColor;\r\n        }\r\n    </script>\r\n</div>\r\n";
 
 /***/ },
 /* 377 */
@@ -45322,7 +45337,641 @@
 
 	var _ampersandView2 = _interopRequireDefault(_ampersandView);
 
-	var _tplHomeHtml = __webpack_require__(378);
+	var _utilsWebglhelpersJsx = __webpack_require__(364);
+
+	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
+
+	var _utilsUtilsJsx = __webpack_require__(375);
+
+	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
+
+	var _glMatrix = __webpack_require__(365);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+	var _tplTutorial2Html = __webpack_require__(378);
+
+	var _tplTutorial2Html2 = _interopRequireDefault(_tplTutorial2Html);
+
+	var Canvas = _ampersandView2['default'].extend({
+	    props: {
+	        main: 'state'
+	    },
+	    derived: {
+	        'size': { //  Width in px.
+	            deps: ['main.windowWidth'],
+	            fn: function fn() {
+	                return this._sizeHandler();
+	            }
+	        }
+	    },
+	    _sizeHandler: function _sizeHandler() {
+	        var style = window.getComputedStyle(this.el);
+	        return {
+	            width: style.width === "" ? undefined : parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
+	            height: style.height === "" ? undefined : parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
+	        };
+	    }
+	});
+
+	exports['default'] = _ampersandView2['default'].extend({
+	    template: _tplTutorial2Html2['default'],
+	    pageTitle: 'Tutorial 2!',
+	    props: {
+	        main: 'state',
+	        canvas: 'state'
+	    },
+	    bindings: {
+	        'canvas.size': {
+	            type: function type(el, value, previousValue) {
+	                if (value) {
+	                    this._setPerspective(value);
+	                }
+	            }
+	        }
+	    },
+	    render: function render() {
+	        var _this = this;
+
+	        this.renderWithTemplate();
+
+	        this.canvas = new Canvas({
+	            el: this.queryByHook('canvas'),
+	            main: this.main
+	        });
+	        _utilsWebglhelpersJsx2['default'].initWebGl(this.canvas.el);
+	        //this.clock = new WebGlApi.Clock();
+	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
+	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
+	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+	        setTimeout(function () {
+	            _this._setPerspective(_this.canvas._sizeHandler());
+	        }, 10);
+
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _this._initData(data);
+	            _this.isRun = true;
+	            _this._tick();
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+	    },
+	    initialize: function initialize() {
+	        this.once('remove', this.cleanup, this);
+	    },
+	    cleanup: function cleanup() {
+	        this.isRun = false;
+	    },
+	    _setPerspective: function _setPerspective(size) {
+	        //console.log('_setPerspective: ', size)
+	        //0.7854 = 2*pi/8
+	        if (size.width && size.height) {
+	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
+	        }
+	    },
+	    _initShaders: function _initShaders(gl, fs, vs) {
+	        var fragmentShader = _utilsWebglhelpersJsx2['default'].getShader(fs);
+	        var vertexShader = _utilsWebglhelpersJsx2['default'].getShader(vs);
+	        var shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
+	        gl.useProgram(shaderProgram);
+
+	        // get pointers to the shader params
+	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
+	        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+
+	        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
+	        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+	        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+	        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
+	        return shaderProgram;
+	    },
+	    _initData: function _initData(sphere) {
+	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        this.globject = {};
+	        this.globject.vertices = verticesBuffer;
+	        this.globject.triangles = trianglesBuffer;
+	        this.globject.types = sphere.types;
+	        this.globject.buffers = sphere.buffers;
+
+	        this.globject.stride = 0;
+	        for (var i = 0; i < sphere.types.length; i++) {
+	            this.globject.stride += sphere.types[i].size;
+	        }
+	    },
+	    _tick: function _tick() {
+	        var _this2 = this;
+
+	        if (this.isRun !== true) {
+	            return;
+	        }
+
+	        this.fps.update();
+	        //var angle = clock.getElapsedTime() / 1000;
+	        //rotateViewMatrices(angle);
+
+	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.2, 0.2, 0.2);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.7, 0.7, 0.7);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+	        var lightPos = [0.0, 0.0, 3.0];
+	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+
+	        requestAnimFrame(function () {
+	            _this2._tick();
+	        });
+	    }
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 378 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"tutorial2\">\r\n    <h1>Example 2</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"600\" height=\"600\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        void main(void) {\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            // Transform the normal (n) to eye coordinates\r\n            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision mediump float;\r\n\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform vec4 uMaterialColor;\r\n        uniform float uMaterialShininess;\r\n\r\n        void main(void) {\r\n            vec3 normalEyeVector = normalize(vNormalEyeVector);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            gl_FragColor = vec4(uMaterialColor.rgb * lightWeighting, uMaterialColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+
+/***/ },
+/* 379 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ampersandView = __webpack_require__(178);
+
+	var _ampersandView2 = _interopRequireDefault(_ampersandView);
+
+	var _utilsWebglhelpersJsx = __webpack_require__(364);
+
+	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
+
+	var _utilsUtilsJsx = __webpack_require__(375);
+
+	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
+
+	var _glMatrix = __webpack_require__(365);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+	var _tplTutorial3Html = __webpack_require__(380);
+
+	var _tplTutorial3Html2 = _interopRequireDefault(_tplTutorial3Html);
+
+	var Canvas = _ampersandView2['default'].extend({
+	    props: {
+	        main: 'state'
+	    },
+	    derived: {
+	        'size': { //  Width in px.
+	            deps: ['main.windowWidth'],
+	            fn: function fn() {
+	                return this._sizeHandler();
+	            }
+	        }
+	    },
+	    _sizeHandler: function _sizeHandler() {
+	        var style = window.getComputedStyle(this.el);
+	        return {
+	            width: style.width === "" ? undefined : parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
+	            height: style.height === "" ? undefined : parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
+	        };
+	    }
+	});
+
+	exports['default'] = _ampersandView2['default'].extend({
+	    template: _tplTutorial3Html2['default'],
+	    pageTitle: 'Tutorial 3!',
+	    props: {
+	        main: 'state',
+	        canvas: 'state'
+	    },
+	    bindings: {
+	        'canvas.size': {
+	            type: function type(el, value, previousValue) {
+	                if (value) {
+	                    this._setPerspective(value);
+	                }
+	            }
+	        }
+	    },
+	    render: function render() {
+	        var _this = this;
+
+	        this.renderWithTemplate();
+
+	        this.canvas = new Canvas({
+	            el: this.queryByHook('canvas'),
+	            main: this.main
+	        });
+	        _utilsWebglhelpersJsx2['default'].initWebGl(this.canvas.el);
+	        //this.clock = new WebGlApi.Clock();
+	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
+	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
+	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+	        setTimeout(function () {
+	            _this._setPerspective(_this.canvas._sizeHandler());
+	        }, 10);
+
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _this._initData(data);
+	            _this.isRun = true;
+	            _this._tick();
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+	    },
+	    initialize: function initialize() {
+	        this.once('remove', this.cleanup, this);
+	    },
+	    cleanup: function cleanup() {
+	        this.isRun = false;
+	    },
+	    _setPerspective: function _setPerspective(size) {
+	        //console.log('_setPerspective: ', size)
+	        //0.7854 = 2*pi/8
+	        if (size.width && size.height) {
+	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
+	        }
+	    },
+	    _initShaders: function _initShaders(gl, fs, vs) {
+	        var fragmentShader = _utilsWebglhelpersJsx2['default'].getShader(fs);
+	        var vertexShader = _utilsWebglhelpersJsx2['default'].getShader(vs);
+	        var shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
+	        gl.useProgram(shaderProgram);
+
+	        // get pointers to the shader params
+	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
+	        shaderProgram.vertexTextureAttribute = gl.getAttribLocation(shaderProgram, "aVertexTexture");
+	        gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
+
+	        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+
+	        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+	        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+	        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+	        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
+	        return shaderProgram;
+	    },
+	    _initTexture: function _initTexture(url, texture) {
+	        var image = new Image();
+	        image.onload = function () {
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, texture);
+	            //WebGlApi.gl.pixelStorei(WebGlApi.gl.UNPACK_FLIP_Y_WEBGL, true);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texImage2D(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, 0, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.UNSIGNED_BYTE, image);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MAG_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MIN_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.generateMipmap(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D);
+
+	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_S, WebGlApi.gl.MIRRORED_REPEAT);
+	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_T, WebGlApi.gl.MIRRORED_REPEAT);
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
+	        };
+	        image.src = url;
+	    },
+	    _initData: function _initData(sphere) {
+	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        this.globject = {};
+	        this.globject.vertices = verticesBuffer;
+	        this.globject.triangles = trianglesBuffer;
+	        this.globject.types = sphere.types;
+	        this.globject.buffers = sphere.buffers;
+
+	        this.globject.stride = 0;
+	        for (var i = 0; i < sphere.types.length; i++) {
+	            this.globject.stride += sphere.types[i].size;
+	            if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TEXTURE) {
+	                this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
+	            }
+	        }
+	        this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
+	        this._initTexture(this.globject.textureUrl, this.globject.texture);
+	    },
+	    _tick: function _tick() {
+	        var _this2 = this;
+
+	        if (this.isRun !== true) {
+	            return;
+	        }
+
+	        this.fps.update();
+	        //var angle = clock.getElapsedTime() / 1000;
+	        //rotateViewMatrices(angle);
+
+	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+	        var lightPos = [0.0, 0.0, 3.0];
+	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+
+	        requestAnimFrame(function () {
+	            _this2._tick();
+	        });
+	    }
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 380 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"tutorial3\">\r\n    <h1>Example 3</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"600\" height=\"600\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec2 vVertexTexture;\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        void main(void) {\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            // Transform the normal (n) to eye coordinates\r\n            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n            vVertexTexture = aVertexTexture;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec2 vVertexTexture;\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n        uniform sampler2D uSampler;\r\n\r\n        void main(void) {\r\n            vec3 normalEyeVector = normalize(vNormalEyeVector);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vVertexTexture);\r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+
+/***/ },
+/* 381 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ampersandView = __webpack_require__(178);
+
+	var _ampersandView2 = _interopRequireDefault(_ampersandView);
+
+	var _utilsWebglhelpersJsx = __webpack_require__(364);
+
+	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
+
+	var _utilsUtilsJsx = __webpack_require__(375);
+
+	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
+
+	var _glMatrix = __webpack_require__(365);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+	var _tplTutorial4Html = __webpack_require__(382);
+
+	var _tplTutorial4Html2 = _interopRequireDefault(_tplTutorial4Html);
+
+	var Canvas = _ampersandView2['default'].extend({
+	    props: {
+	        main: 'state'
+	    },
+	    derived: {
+	        'size': { //  Width in px.
+	            deps: ['main.windowWidth'],
+	            fn: function fn() {
+	                return this._sizeHandler();
+	            }
+	        }
+	    },
+	    _sizeHandler: function _sizeHandler() {
+	        var style = window.getComputedStyle(this.el);
+	        return {
+	            width: style.width === "" ? undefined : parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
+	            height: style.height === "" ? undefined : parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
+	        };
+	    }
+	});
+
+	exports['default'] = _ampersandView2['default'].extend({
+	    template: _tplTutorial4Html2['default'],
+	    pageTitle: 'Tutorial 4!',
+	    props: {
+	        main: 'state',
+	        canvas: 'state'
+	    },
+	    bindings: {
+	        'canvas.size': {
+	            type: function type(el, value, previousValue) {
+	                if (value) {
+	                    this._setPerspective(value);
+	                }
+	            }
+	        }
+	    },
+	    render: function render() {
+	        var _this = this;
+
+	        this.renderWithTemplate();
+
+	        this.canvas = new Canvas({
+	            el: this.queryByHook('canvas'),
+	            main: this.main
+	        });
+	        _utilsWebglhelpersJsx2['default'].initWebGl(this.canvas.el);
+	        //this.clock = new WebGlApi.Clock();
+	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
+	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
+	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+	        setTimeout(function () {
+	            _this._setPerspective(_this.canvas._sizeHandler());
+	        }, 10);
+
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _this._initData(data);
+	            _this.isRun = true;
+	            _this._tick();
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+	    },
+	    initialize: function initialize() {
+	        this.once('remove', this.cleanup, this);
+	    },
+	    cleanup: function cleanup() {
+	        this.isRun = false;
+	    },
+	    _setPerspective: function _setPerspective(size) {
+	        //console.log('_setPerspective: ', size)
+	        //0.7854 = 2*pi/8
+	        if (size.width && size.height) {
+	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
+	        }
+	    },
+	    _initShaders: function _initShaders(gl, fs, vs) {
+	        var fragmentShader = _utilsWebglhelpersJsx2['default'].getShader(fs);
+	        var vertexShader = _utilsWebglhelpersJsx2['default'].getShader(vs);
+	        var shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
+	        gl.useProgram(shaderProgram);
+
+	        // get pointers to the shader params
+	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
+	        shaderProgram.vertexTextureAttribute = gl.getAttribLocation(shaderProgram, "aVertexTexture");
+	        gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
+
+	        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+	        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+
+	        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+	        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+	        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+	        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
+	        return shaderProgram;
+	    },
+	    _initTexture: function _initTexture(url, texture) {
+	        var image = new Image();
+	        image.onload = function () {
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, texture);
+	            //WebGlApi.gl.pixelStorei(WebGlApi.gl.UNPACK_FLIP_Y_WEBGL, true);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texImage2D(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, 0, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.UNSIGNED_BYTE, image);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MAG_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MIN_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.generateMipmap(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D);
+
+	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_S, WebGlApi.gl.MIRRORED_REPEAT);
+	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_T, WebGlApi.gl.MIRRORED_REPEAT);
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
+	        };
+	        image.src = url;
+	    },
+	    _initData: function _initData(sphere) {
+	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
+	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
+	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
+
+	        this.globject = {};
+	        this.globject.vertices = verticesBuffer;
+	        this.globject.triangles = trianglesBuffer;
+	        this.globject.types = sphere.types;
+	        this.globject.buffers = sphere.buffers;
+
+	        this.globject.stride = 0;
+	        for (var i = 0; i < sphere.types.length; i++) {
+	            this.globject.stride += sphere.types[i].size;
+	            if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TEXTURE) {
+	                this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
+	            }
+	        }
+	        this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
+	        this._initTexture(this.globject.textureUrl, this.globject.texture);
+	    },
+	    _tick: function _tick() {
+	        var _this2 = this;
+
+	        if (this.isRun !== true) {
+	            return;
+	        }
+
+	        this.fps.update();
+	        //var angle = clock.getElapsedTime() / 1000;
+	        //rotateViewMatrices(angle);
+
+	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+	        var lightPos = [0.0, 0.0, 3.0];
+	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+
+	        requestAnimFrame(function () {
+	            _this2._tick();
+	        });
+	    }
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 382 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"600\" height=\"600\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec2 vVertexTexture;\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        void main(void) {\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            // Transform the normal (n) to eye coordinates\r\n            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n            vVertexTexture = aVertexTexture;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec2 vVertexTexture;\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n        uniform sampler2D uSampler;\r\n\r\n        void main(void) {\r\n            vec3 normalEyeVector = normalize(vNormalEyeVector);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vVertexTexture);\r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+
+/***/ },
+/* 383 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ampersandView = __webpack_require__(178);
+
+	var _ampersandView2 = _interopRequireDefault(_ampersandView);
+
+	var _tplHomeHtml = __webpack_require__(384);
 
 	var _tplHomeHtml2 = _interopRequireDefault(_tplHomeHtml);
 
@@ -45334,22 +45983,22 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 378 */
+/* 384 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"home\">\r\n    <h1>Tutorials</h1>\r\n    <ul>\r\n        <li>\r\n            <a href=\"#/tutorial1\">Tutorial 1</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial2\">Tutorial 2</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial3\">Tutorial 3</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial4\">Tutorial 4</a>\r\n        </li>\r\n    </ul>\r\n</div>\r\n\r\n";
 
 /***/ },
-/* 379 */
+/* 385 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(380);
+	var content = __webpack_require__(386);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(382)(content, {});
+	var update = __webpack_require__(388)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -45366,10 +46015,10 @@
 	}
 
 /***/ },
-/* 380 */
+/* 386 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(381)();
+	exports = module.exports = __webpack_require__(387)();
 	// imports
 
 
@@ -45380,7 +46029,7 @@
 
 
 /***/ },
-/* 381 */
+/* 387 */
 /***/ function(module, exports) {
 
 	/*
@@ -45436,7 +46085,7 @@
 
 
 /***/ },
-/* 382 */
+/* 388 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -45659,200 +46308,6 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
-
-/***/ },
-/* 383 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"tutorial2\">\r\n    <h1>Example 2</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        void main(void) {\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            // Transform the normal (n) to eye coordinates\r\n            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision mediump float;\r\n\r\n        varying vec3 vNormalEyeVector;\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform vec4 uMaterialColor;\r\n        uniform float uMaterialShininess;\r\n\r\n        void main(void) {\r\n            vec3 normalEyeVector = normalize(vNormalEyeVector);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            gl_FragColor = vec4(uMaterialColor.rgb * lightWeighting, uMaterialColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
-
-/***/ },
-/* 384 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _ampersandView = __webpack_require__(178);
-
-	var _ampersandView2 = _interopRequireDefault(_ampersandView);
-
-	var _utilsWebglhelpersJsx = __webpack_require__(364);
-
-	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
-
-	var _utilsUtilsJsx = __webpack_require__(375);
-
-	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
-
-	var _glMatrix = __webpack_require__(365);
-
-	var _glMatrix2 = _interopRequireDefault(_glMatrix);
-
-	var _tplTutorial2Html = __webpack_require__(383);
-
-	var _tplTutorial2Html2 = _interopRequireDefault(_tplTutorial2Html);
-
-	var Canvas = _ampersandView2['default'].extend({
-	    props: {
-	        main: 'state'
-	    },
-	    derived: {
-	        'size': { //  Width in px.
-	            deps: ['main.windowWidth'],
-	            fn: function fn() {
-	                return this._sizeHandler();
-	            }
-	        }
-	    },
-	    _sizeHandler: function _sizeHandler() {
-	        var style = window.getComputedStyle(this.el);
-	        return {
-	            width: style.width === "" ? undefined : parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
-	            height: style.height === "" ? undefined : parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
-	        };
-	    }
-	});
-
-	exports['default'] = _ampersandView2['default'].extend({
-	    template: _tplTutorial2Html2['default'],
-	    pageTitle: 'Tutorial 1!',
-	    props: {
-	        main: 'state',
-	        canvas: 'state'
-	    },
-	    bindings: {
-	        'canvas.size': {
-	            type: function type(el, value, previousValue) {
-	                if (value) {
-	                    this._setPerspective(value);
-	                }
-	            }
-	        }
-	    },
-	    render: function render() {
-	        var _this = this;
-
-	        this.renderWithTemplate();
-
-	        this.canvas = new Canvas({
-	            el: this.queryByHook('canvas'),
-	            main: this.main
-	        });
-	        _utilsWebglhelpersJsx2['default'].initWebGl(this.canvas.el);
-	        //this.clock = new WebGlApi.Clock();
-	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
-	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
-	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
-
-	        setTimeout(function () {
-	            _this._setPerspective(_this.canvas._sizeHandler());
-	        }, 10);
-
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
-	            _this._initData(data);
-	            _this.isRun = true;
-	            _this._tick();
-	        }, function (error) {
-	            console.log('Error is happend: ', error);
-	        });
-	    },
-	    initialize: function initialize() {
-	        this.once('remove', this.cleanup, this);
-	    },
-	    cleanup: function cleanup() {
-	        this.isRun = false;
-	    },
-	    _setPerspective: function _setPerspective(size) {
-	        //console.log('_setPerspective: ', size)
-	        //0.7854 = 2*pi/8
-	        if (size.width && size.height) {
-	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
-	        }
-	    },
-	    _initShaders: function _initShaders(gl, fs, vs) {
-	        var fragmentShader = _utilsWebglhelpersJsx2['default'].getShader(fs);
-	        var vertexShader = _utilsWebglhelpersJsx2['default'].getShader(vs);
-	        var shaderProgram = gl.createProgram();
-	        gl.attachShader(shaderProgram, vertexShader);
-	        gl.attachShader(shaderProgram, fragmentShader);
-	        gl.linkProgram(shaderProgram);
-	        gl.useProgram(shaderProgram);
-
-	        // get pointers to the shader params
-	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-
-	        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-	        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-	        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
-
-	        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
-	        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
-
-	        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
-	        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
-	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
-	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
-	        return shaderProgram;
-	    },
-	    _initData: function _initData(sphere) {
-	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        this.globject = {};
-	        this.globject.vertices = verticesBuffer;
-	        this.globject.triangles = trianglesBuffer;
-	        this.globject.types = sphere.types;
-	        this.globject.buffers = sphere.buffers;
-
-	        this.globject.stride = 0;
-	        for (var i = 0; i < sphere.types.length; i++) {
-	            this.globject.stride += sphere.types[i].size;
-	        }
-	    },
-	    _tick: function _tick() {
-	        var _this2 = this;
-
-	        if (this.isRun !== true) {
-	            return;
-	        }
-
-	        this.fps.update();
-	        //var angle = clock.getElapsedTime() / 1000;
-	        //rotateViewMatrices(angle);
-
-	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
-	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
-	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.2, 0.2, 0.2);
-	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.7, 0.7, 0.7);
-	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
-
-	        var lightPos = [0.0, 0.0, 3.0];
-	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
-	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
-
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
-
-	        requestAnimFrame(function () {
-	            _this2._tick();
-	        });
-	    }
-	});
-	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);
