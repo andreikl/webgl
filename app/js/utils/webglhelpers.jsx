@@ -54,6 +54,8 @@ WebGlApi.initWebGl = function (canvas) {
 
     WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
+
+    WebGlApi.gl.getExtension('OES_standard_derivatives');
 }
 
 WebGlApi.getShader = function(shaderScript) {

@@ -18,6 +18,7 @@
 
         void main(void) {
             // Get the vertex position in eye coordinates
+            //vVertexEyePosition = uMVMatrix.xyz * aVertexPosition;
             vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
@@ -28,6 +29,8 @@
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
+        #extension GL_OES_standard_derivatives: enable
+
         precision mediump float;
 
         varying vec3 vNormalEyeVector;
@@ -43,7 +46,8 @@
         uniform float uMaterialShininess;
 
         void main(void) {
-            vec3 normalEyeVector = normalize(vNormalEyeVector);
+            //vec3 normalEyeVector = normalize(vNormalEyeVector);
+            vec3 normalEyeVector = normalize(cross(dFdx(vVertexEyePosition), dFdy(vVertexEyePosition)));
 
             // Calculate the vector (l) to the light source
             vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);
