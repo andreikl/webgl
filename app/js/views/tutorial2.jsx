@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere', (data) => {
+        Utils.ajaxGet('/api/getSphere1', (data) => {
             this._initData(data);
             this.isRun = true;
             this._tick();
@@ -93,9 +93,6 @@ export default View.extend({
         // get pointers to the shader params
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");

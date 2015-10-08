@@ -1,5 +1,6 @@
 var Hapi = require('hapi');
 var webpack = require('webpack');
+var Matrix = require('gl-matrix');
 
 var config = {
     "isDev": true
@@ -140,18 +141,22 @@ server.route({
     },
 });
 
-var WebGlApi = {};
-WebGlApi.DATA_TYPE = { COORDINATES: 1, NORMALS: 2, TEXTURE: 3 };
-WebGlApi.BUFFER_TYPE = { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 };
+var WebGlApi = {
+    DATA_TYPE: { COORDINATES: 1, NORMALS: 2, TANGENTS: 3, TEXTURE: 4 },
+    BUFFER_TYPE: { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 }
+};
 
+var halfPi = Math.PI / 2;
 
 // Add the route
 server.route({
     method: 'GET',
-    path:'/api/getCube', 
+    path:'/api/getSphere2', 
     handler: function (request, reply) {
-        // todo: calculate length
-        var vertices = new Array();
+        var rows = 30;
+        var columns = 25;
+
+        var vertices = new Array((2 + (rows - 1) * (columns + 1)) * 14);
 
         var step_row_angle = Math.PI / rows;
         var step_row_text = 1.0 / rows;
@@ -162,15 +167,26 @@ server.route({
         var cur_row_angle = step_row_angle;
         var cur_row_text = step_row_text;
 
+        // x y z
         vertices[cur_pos + 0] = 0.0;
         vertices[cur_pos + 1] = 1.0;
         vertices[cur_pos + 2] = 0.0;
-        vertices[cur_pos + 3] = 0.0;
-        vertices[cur_pos + 4] = 1.0;
+        // s tangent
+        vertices[cur_pos + 3] = 1.0;
+        vertices[cur_pos + 4] = 0.0;
         vertices[cur_pos + 5] = 0.0;
-        vertices[cur_pos + 6] = 0.5;
+        // t tangent
+        vertices[cur_pos + 6] = 0.0;
         vertices[cur_pos + 7] = 0.0;
-        cur_pos += 8;
+        vertices[cur_pos + 8] = 1.0;
+        // normale
+        vertices[cur_pos + 9] = 0.0;
+        vertices[cur_pos + 10] = 1.0;
+        vertices[cur_pos + 11] = 0.0;
+        // uv
+        vertices[cur_pos + 12] = 0.5;
+        vertices[cur_pos + 13] = 0.0;
+        cur_pos += 14;
         for (var i = 0; i < rows - 1; i++) {
             var cur_row_sin = Math.sin(cur_row_angle);
             var cur_row_cos = Math.cos(cur_row_angle);
@@ -181,16 +197,36 @@ server.route({
                 var cur_col_sin = Math.sin(cur_col_angle);
                 var cur_col_cos = Math.cos(cur_col_angle);
 
+                // x y z
                 vertices[cur_pos + 0] = cur_col_sin * cur_row_sin;
                 vertices[cur_pos + 1] = cur_row_cos;
                 vertices[cur_pos + 2] = cur_col_cos * cur_row_sin;
                 //var length = Math.sqrt((vertices[cur_pos + 0] * vertices[cur_pos + 0]) + (vertices[cur_pos + 1] * vertices[cur_pos + 1]) + (vertices[cur_pos + 2] * vertices[cur_pos + 2]));
-                vertices[cur_pos + 3] = vertices[cur_pos + 0];
-                vertices[cur_pos + 4] = vertices[cur_pos + 1];
-                vertices[cur_pos + 5] = vertices[cur_pos + 2];
-                vertices[cur_pos + 6] = cur_col_text;
-                vertices[cur_pos + 7] = cur_row_text;
-                cur_pos += 8;
+
+                // s tangent
+                var res = Matrix.vec3.create();
+                var point = Matrix.vec3.fromValues(0, 0, 0);
+                var normale = Matrix.vec3.fromValues(vertices[cur_pos + 0], vertices[cur_pos + 1], vertices[cur_pos + 2]);
+                Matrix.vec3.rotateY(res, normale, point, -halfPi);
+                vertices[cur_pos + 3] = res[0];
+                vertices[cur_pos + 4] = res[1];
+                vertices[cur_pos + 5] = res[2];
+
+                // t tangent
+                Matrix.vec3.rotateX(res, normale, point, -halfPi);
+                vertices[cur_pos + 6] = res[0];
+                vertices[cur_pos + 7] = res[1];
+                vertices[cur_pos + 8] = res[2];
+
+                // normale
+                vertices[cur_pos + 9] = normale[0];
+                vertices[cur_pos + 10] = normale[1];
+                vertices[cur_pos + 11] = normale[2];
+
+                // uv
+                vertices[cur_pos + 12] = cur_col_text;
+                vertices[cur_pos + 13] = cur_row_text;
+                cur_pos += 14;
 
                 cur_col_angle += step_col_angle;
                 cur_col_text += step_col_text;
@@ -198,15 +234,26 @@ server.route({
             cur_row_angle += step_row_angle;
             cur_row_text += step_row_text;
         }
+        // x y z
         vertices[cur_pos + 0] = 0.0;
         vertices[cur_pos + 1] = -1.0;
         vertices[cur_pos + 2] = 0.0;
-        vertices[cur_pos + 3] = 0.0;
-        vertices[cur_pos + 4] = -1.0;
+        // s tangent
+        vertices[cur_pos + 3] = 1.0;
+        vertices[cur_pos + 4] = 0.0;
         vertices[cur_pos + 5] = 0.0;
-        vertices[cur_pos + 6] = 0.5;
-        vertices[cur_pos + 7] = 1.0;
-        cur_pos += 8;
+        // t tangent
+        vertices[cur_pos + 6] = 0.0;
+        vertices[cur_pos + 7] = 0.0;
+        vertices[cur_pos + 8] = -1.0;
+        // normale
+        vertices[cur_pos + 9] = 0.0;
+        vertices[cur_pos + 10] = -1.0;
+        vertices[cur_pos + 11] = 0.0;
+        // uv
+        vertices[cur_pos + 12] = 0.5;
+        vertices[cur_pos + 13] = 1.0;
+        cur_pos += 14;
 
         var triangles = new Array(2 * columns * (rows - 1) * 3);
         cur_pos = 0;
@@ -248,8 +295,9 @@ server.route({
         objectData.name = "Sphere";
         objectData.types = new Array();
         objectData.types[0] = { dataType: WebGlApi.DATA_TYPE.COORDINATES, size: 12 };
-        objectData.types[1] = { dataType: WebGlApi.DATA_TYPE.NORMALS, size: 12 };
-        objectData.types[2] = { dataType: WebGlApi.DATA_TYPE.TEXTURE, size: 8, tag: "images/earth.jpg" };
+        objectData.types[1] = { dataType: WebGlApi.DATA_TYPE.TANGENTS, size: 24, tag: "images/earth_bump.jpg" };
+        objectData.types[2] = { dataType: WebGlApi.DATA_TYPE.NORMALS, size: 12 };
+        objectData.types[3] = { dataType: WebGlApi.DATA_TYPE.TEXTURE, size: 8, tag: "images/earth.jpg" };
         objectData.buffers = buffers;
         objectData.vertices = vertices;
         objectData.triangles = triangles;
@@ -261,7 +309,7 @@ server.route({
 // Add the route
 server.route({
     method: 'GET',
-    path:'/api/getSphere', 
+    path:'/api/getSphere1', 
     handler: function (request, reply) {
         var rows = 30;
         var columns = 25;

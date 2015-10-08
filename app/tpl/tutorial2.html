@@ -1,29 +1,23 @@
 <div class="tutorial2">
     <h1>Example 2</h1>
     <div data-hook="fps">---</div>
-    <canvas data-hook="canvas" width="600" height="600">Canvas element is not supported</canvas>
+    <canvas data-hook="canvas" width="1200" height="768">Canvas element is not supported</canvas>
     <form id="configure-form">
         <input type="submit" name="GetSphere" value="Get Sphere"></input>
     </form>
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
-        attribute vec3 aVertexNormal;
 
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
         uniform mat3 uNMatrix;
 
-        varying vec3 vNormalEyeVector;
         varying vec3 vVertexEyePosition;
 
         void main(void) {
             // Get the vertex position in eye coordinates
-            //vVertexEyePosition = uMVMatrix.xyz * aVertexPosition;
             vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
-
-            // Transform the normal (n) to eye coordinates
-            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);
 
             gl_Position = uPMatrix * vertexEyePosition4;
         }
@@ -33,7 +27,6 @@
 
         precision mediump float;
 
-        varying vec3 vNormalEyeVector;
         varying vec3 vVertexEyePosition;
 
         uniform vec3 uLightPosition;
@@ -46,7 +39,6 @@
         uniform float uMaterialShininess;
 
         void main(void) {
-            //vec3 normalEyeVector = normalize(vNormalEyeVector);
             vec3 normalEyeVector = normalize(cross(dFdx(vVertexEyePosition), dFdy(vVertexEyePosition)));
 
             // Calculate the vector (l) to the light source

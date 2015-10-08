@@ -5,14 +5,16 @@
   "main": "server.js",
   "scripts": {
     "prebuild": "NODE_ENV=production && echo \"Build:\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "jshint .",
+    "validate": "npm ls"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "ampersand-model": "^6.0.1",
     "ampersand-router": "^3.0.2",
-    "ampersand-view": "^8.0.1",
+    "ampersand-view": "8.0.1",
     "ampersand-view-switcher": "^2.0.0",
     "babel-loader": "^5.3.2",
     "css-loader": "^0.16.0",
@@ -23,5 +25,10 @@
     "sass-loader": "^2.0.1",
     "style-loader": "^0.12.3",
     "webpack": "^1.12.0"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "validate",
+    "test"
+  ]
 }

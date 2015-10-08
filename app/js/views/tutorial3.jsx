@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere', (data) => {
+        Utils.ajaxGet('/api/getSphere2', (data) => {
             this._initData(data);
             this.isRun = true;
             this._tick();
@@ -94,6 +94,12 @@ export default View.extend({
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+        shaderProgram.vertexSTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexSTangent");
+        gl.enableVertexAttribArray(shaderProgram.vertexSTangentAttribute);
+
+        shaderProgram.vertexTTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexTTangent");
+        gl.enableVertexAttribArray(shaderProgram.vertexTTangentAttribute);
+
         shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
         gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
@@ -106,6 +112,8 @@ export default View.extend({
 
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
         shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+        shaderProgram.bumpUniform = gl.getUniformLocation(shaderProgram, "uBump");
 
         shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
         shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
@@ -152,10 +160,18 @@ export default View.extend({
             this.globject.stride += sphere.types[i].size;
             if (this.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
                 this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
+            } else if (this.globject.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
+                this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
             }
         }
-        this.globject.texture = WebGlApi.gl.createTexture();
-        this._initTexture(this.globject.textureUrl, this.globject.texture)
+        if (this.globject.textureUrl) {
+            this.globject.texture = WebGlApi.gl.createTexture();
+            this._initTexture(this.globject.textureUrl, this.globject.texture)
+        }
+        if (this.globject.bumpMapUrl) {
+            this.globject.bumpMap = WebGlApi.gl.createTexture();
+            this._initTexture(this.globject.bumpMapUrl, this.globject.bumpMap)
+        }
     },
     _tick () {
         if (this.isRun !== true) { return; }
