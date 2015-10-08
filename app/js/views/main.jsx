@@ -53,6 +53,13 @@ export default View.extend({
                 this.pages.set(this.tutorial3);
                 break;
 
+            case 'tutorial4':
+                if (!this.tutorial4) {
+                    this.tutorial4 = new Tutorial4Page({main: this});
+                }
+                this.pages.set(this.tutorial4);
+                break;
+
             default:
                 if (!this.home) {
                     this.home = new HomePage({main: this});
