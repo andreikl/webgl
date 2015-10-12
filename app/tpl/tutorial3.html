@@ -8,7 +8,6 @@
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
         attribute vec3 aVertexSTangent;
-        attribute vec3 aVertexTTangent;
         attribute vec3 aVertexNormal;
         attribute vec2 aVertexTexture;
 
@@ -21,9 +20,6 @@
         varying mat3 tbn;
 
         void main(void) {
-
-            vec4 tt = vec4(aVertexTTangent, 1.0);
-
             // Create the Tangent-Binormal-Normal Matrix used for transforming
             // coordinates from object space to tangent space
             vec3 vNormal = normalize(uNMatrix * aVertexNormal);

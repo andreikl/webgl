@@ -101,17 +101,14 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
 
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, globj.vertices);
     WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 0);
-    if (shaderProgram.vertexSTangentAttribute !== undefined) {
-        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexSTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 12);
-    }
-    if (shaderProgram.vertexTTangentAttribute !== undefined) {
-        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 24);
-    }
     if (shaderProgram.vertexNormalAttribute !== undefined) {
-        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 36);
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 12);
+    }
+    if (shaderProgram.vertexSTangentAttribute !== undefined) {
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexSTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 24);
     }
     if (shaderProgram.vertexTextureAttribute !== undefined) {
-        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTextureAttribute, 2, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 48);
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTextureAttribute, 2, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 36);
     }
     if (globj.texture !== undefined) {
         WebGlApi.gl.activeTexture(WebGlApi.gl.TEXTURE0);

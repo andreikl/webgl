@@ -19,7 +19,7 @@ var plugin = {
         var compiler = webpack(options);
         compiler.watch({ // watch options:
             aggregateTimeout: 300, // wait so long for more changes
-            poll: true // use polling instead of native watchers
+            poll: false // use polling instead of native watchers
         }, function(err, statsStr) {
             if (err) {
                 console.log('\x1b[30m', 'Building is failure' ,'\x1b[0m', err);
@@ -153,15 +153,33 @@ server.route({
     method: 'GET',
     path:'/api/getSphere2', 
     handler: function (request, reply) {
-        var rows = 30;
-        var columns = 25;
+        if (!request.query.rows) {
+            request.query.rows = 30;
+        }
+        if (!request.query.columns) {
+            request.query.columns = 25;
+        }
 
-        var vertices = new Array((2 + (rows - 1) * (columns + 1)) * 14);
+        var stride = 3;
+        if (!request.query.isNormals) {
+            request.query.isNormals = false;
+            stride += 3;
+        }
+        if (!request.query.isTangents) {
+            request.query.isTangents = false;
+            stride += 3;
+        }
+        if (!request.query.isUVs) {
+            request.query.isUVs = false;
+            stride += 2;
+        }
 
-        var step_row_angle = Math.PI / rows;
-        var step_row_text = 1.0 / rows;
-        var step_col_angle = 2 * Math.PI / columns;
-        var step_col_text = 1.0 / columns;
+        var vertices = new Array((2 + (request.query.rows - 1) * (request.query.columns + 1)) * stride);
+
+        var step_row_angle = Math.PI / request.query.rows;
+        var step_row_text = 1.0 / request.query.rows;
+        var step_col_angle = 2 * Math.PI / request.query.columns;
+        var step_col_text = 1.0 / request.query.columns;
 
         var cur_pos = 0;
         var cur_row_angle = step_row_angle;
@@ -171,29 +189,35 @@ server.route({
         vertices[cur_pos + 0] = 0.0;
         vertices[cur_pos + 1] = 1.0;
         vertices[cur_pos + 2] = 0.0;
-        // s tangent
-        vertices[cur_pos + 3] = 1.0;
-        vertices[cur_pos + 4] = 0.0;
-        vertices[cur_pos + 5] = 0.0;
-        // t tangent
-        vertices[cur_pos + 6] = 0.0;
-        vertices[cur_pos + 7] = 0.0;
-        vertices[cur_pos + 8] = 1.0;
+        cur_pos += 3;
         // normale
-        vertices[cur_pos + 9] = 0.0;
-        vertices[cur_pos + 10] = 1.0;
-        vertices[cur_pos + 11] = 0.0;
+        if (request.query.isNormales) {
+            vertices[cur_pos + 0] = 0.0;
+            vertices[cur_pos + 1] = 1.0;
+            vertices[cur_pos + 2] = 0.0;
+            cur_pos += 3;
+        }
+        // s tangent
+        if (request.query.isTangents) {
+            vertices[cur_pos + 0] = 1.0;
+            vertices[cur_pos + 1] = 0.0;
+            vertices[cur_pos + 2] = 0.0;
+            cur_pos += 3;
+        }
         // uv
-        vertices[cur_pos + 12] = 0.5;
-        vertices[cur_pos + 13] = 0.0;
-        cur_pos += 14;
-        for (var i = 0; i < rows - 1; i++) {
+        if (request.query.isUVs) {
+            vertices[cur_pos + 0] = 0.5;
+            vertices[cur_pos + 1] = 0.0;
+            cur_pos += 2;
+        }
+        
+        for (var i = 0; i < request.query.rows - 1; i++) {
             var cur_row_sin = Math.sin(cur_row_angle);
             var cur_row_cos = Math.cos(cur_row_angle);
 
             var cur_col_angle = 0.0;
             var cur_col_text = 0.0;
-            for (var j = 0; j <= columns; j++) {
+            for (var j = 0; j <= request.query.columns; j++) {
                 var cur_col_sin = Math.sin(cur_col_angle);
                 var cur_col_cos = Math.cos(cur_col_angle);
 
@@ -201,32 +225,34 @@ server.route({
                 vertices[cur_pos + 0] = cur_col_sin * cur_row_sin;
                 vertices[cur_pos + 1] = cur_row_cos;
                 vertices[cur_pos + 2] = cur_col_cos * cur_row_sin;
-                //var length = Math.sqrt((vertices[cur_pos + 0] * vertices[cur_pos + 0]) + (vertices[cur_pos + 1] * vertices[cur_pos + 1]) + (vertices[cur_pos + 2] * vertices[cur_pos + 2]));
-
-                // s tangent
-                var res = Matrix.vec3.create();
-                var point = Matrix.vec3.fromValues(0, 0, 0);
-                var normale = Matrix.vec3.fromValues(vertices[cur_pos + 0], vertices[cur_pos + 1], vertices[cur_pos + 2]);
-                Matrix.vec3.rotateY(res, normale, point, -halfPi);
-                vertices[cur_pos + 3] = res[0];
-                vertices[cur_pos + 4] = res[1];
-                vertices[cur_pos + 5] = res[2];
-
-                // t tangent
-                Matrix.vec3.rotateX(res, normale, point, -halfPi);
-                vertices[cur_pos + 6] = res[0];
-                vertices[cur_pos + 7] = res[1];
-                vertices[cur_pos + 8] = res[2];
+                cur_pos += 3;
 
                 // normale
-                vertices[cur_pos + 9] = normale[0];
-                vertices[cur_pos + 10] = normale[1];
-                vertices[cur_pos + 11] = normale[2];
+                var normale = Matrix.vec3.fromValues(vertices[cur_pos + 0], vertices[cur_pos + 1], vertices[cur_pos + 2]);
+                if (request.query.isNormales) {
+                    vertices[cur_pos + 0] = normale[0];
+                    vertices[cur_pos + 1] = normale[1];
+                    vertices[cur_pos + 2] = normale[2];
+                    cur_pos += 3;
+                }
+
+                // s tangent
+                if (request.query.isTangents) {
+                    var res = Matrix.vec3.create();
+                    var point = Matrix.vec3.fromValues(0, 0, 0);
+                    Matrix.vec3.rotateY(res, normale, point, -halfPi);
+                    vertices[cur_pos + 0] = res[0];
+                    vertices[cur_pos + 1] = res[1];
+                    vertices[cur_pos + 2] = res[2];
+                    cur_pos += 3;
+                }
 
                 // uv
-                vertices[cur_pos + 12] = cur_col_text;
-                vertices[cur_pos + 13] = cur_row_text;
-                cur_pos += 14;
+                if (request.query.isUVs) {
+                    vertices[cur_pos + 0] = cur_col_text;
+                    vertices[cur_pos + 1] = cur_row_text;
+                    cur_pos += 2;
+                }
 
                 cur_col_angle += step_col_angle;
                 cur_col_text += step_col_text;
@@ -238,50 +264,55 @@ server.route({
         vertices[cur_pos + 0] = 0.0;
         vertices[cur_pos + 1] = -1.0;
         vertices[cur_pos + 2] = 0.0;
-        // s tangent
-        vertices[cur_pos + 3] = 1.0;
-        vertices[cur_pos + 4] = 0.0;
-        vertices[cur_pos + 5] = 0.0;
-        // t tangent
-        vertices[cur_pos + 6] = 0.0;
-        vertices[cur_pos + 7] = 0.0;
-        vertices[cur_pos + 8] = -1.0;
+        cur_pos += 3;
         // normale
-        vertices[cur_pos + 9] = 0.0;
-        vertices[cur_pos + 10] = -1.0;
-        vertices[cur_pos + 11] = 0.0;
+        if (request.query.isNormales) {
+            vertices[cur_pos + 0] = 0.0;
+            vertices[cur_pos + 1] = -1.0;
+            vertices[cur_pos + 2] = 0.0;
+            cur_pos += 3;
+        }
+        // s tangent
+        if (request.query.isTangents) {
+            vertices[cur_pos + 0] = 1.0;
+            vertices[cur_pos + 1] = 0.0;
+            vertices[cur_pos + 2] = 0.0;
+            cur_pos += 3;
+        }
         // uv
-        vertices[cur_pos + 12] = 0.5;
-        vertices[cur_pos + 13] = 1.0;
-        cur_pos += 14;
+        if (request.query.isUVs) {
+            vertices[cur_pos + 0] = 0.5;
+            vertices[cur_pos + 1] = 1.0;
+            cur_pos += 2;
+        }
 
-        var triangles = new Array(2 * columns * (rows - 1) * 3);
+        var triangles = new Array(2 * request.query.columns * (request.query.rows - 1) * 3);
         cur_pos = 0;
-        for (var i = 0; i < columns; i++) {
+        for (var i = 0; i < request.query.columns; i++) {
             triangles[cur_pos + 0] = 0;
             triangles[cur_pos + 1] = i + 1;
             triangles[cur_pos + 2] = i + 2;
             cur_pos += 3;
         }
         var row_cur = 1;
-        var row_next = row_cur + (columns + 1);
-        for (var i = 0; i < rows - 2; i++) {
-            for (var j = 0; j < columns; j++) {
+        var row_next = row_cur + (request.query.columns + 1);
+        for (var i = 0; i < request.query.rows - 2; i++) {
+            for (var j = 0; j < request.query.columns; j++) {
                 triangles[cur_pos + 0] = row_cur + j;
                 triangles[cur_pos + 1] = row_next + j;
                 triangles[cur_pos + 2] = row_next + j + 1;
                 cur_pos += 3;
             }
-            for (var j = 0; j < columns; j++) {
+            for (var j = 0; j < request.query.columns; j++) {
                 triangles[cur_pos + 0] = row_cur + j;
                 triangles[cur_pos + 1] = row_cur + j + 1;
                 triangles[cur_pos + 2] = row_next + j + 1;
                 cur_pos += 3;
             }
             row_cur = row_next;
-            row_next += (columns + 1);
+            row_next += (request.query.columns + 1);
         }
-        for (var i = 0; i < columns; i++) {
+        for (var i = 0; i < request.query.columns; i++) {
             triangles[cur_pos + 0] = row_cur + i;
             triangles[cur_pos + 1] = row_cur + i + 1;
             triangles[cur_pos + 2] = row_next;
@@ -289,15 +320,32 @@ server.route({
         }
 
         var buffers = new Array();
-        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * columns * (rows - 1) * 3 };
+        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * request.query.columns * (request.query.rows - 1) * 3 };
 
         var objectData = {};
         objectData.name = "Sphere";
         objectData.types = new Array();
-        objectData.types[0] = { dataType: WebGlApi.DATA_TYPE.COORDINATES, size: 12 };
-        objectData.types[1] = { dataType: WebGlApi.DATA_TYPE.TANGENTS, size: 24, tag: "images/earth_bump.jpg" };
-        objectData.types[2] = { dataType: WebGlApi.DATA_TYPE.NORMALS, size: 12 };
-        objectData.types[3] = { dataType: WebGlApi.DATA_TYPE.TEXTURE, size: 8, tag: "images/earth.jpg" };
+
+        var position = 0;
+        // x y z
+        objectData.types.push({ 'dataType': WebGlApi.DATA_TYPE.COORDINATES, 'size': 12, 'position': position });
+        position += 12;
+        // normale
+        if (request.query.isNormales) {
+            objectData.types.push({ 'dataType': WebGlApi.DATA_TYPE.NORMALS, 'size': 12, 'position': position });
+            position += 12;
+        }
+        // s tangent
+        if (request.query.isTangents) {
+            objectData.types.push({ 'dataType': WebGlApi.DATA_TYPE.TANGENTS, 'size': 12, 'position': position, 'tag': 'images/earth_bump.jpg' });
+            position += 12;
+        }
+        // uv
+        if (request.query.isUVs) {
+            objectData.types.push({ 'dataType': WebGlApi.DATA_TYPE.TEXTURE, 'size': 8, 'position': position, 'tag': 'images/earth.jpg' });
+            position += 8;
+        }
+
         objectData.buffers = buffers;
         objectData.vertices = vertices;
         objectData.triangles = triangles;

@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere2', (data) => {
+        Utils.ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', (data) => {
             this._initData(data);
             this.isRun = true;
             this._tick();
@@ -96,9 +96,6 @@ export default View.extend({
 
         shaderProgram.vertexSTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexSTangent");
         gl.enableVertexAttribArray(shaderProgram.vertexSTangentAttribute);
-
-        shaderProgram.vertexTTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexTTangent");
-        gl.enableVertexAttribArray(shaderProgram.vertexTTangentAttribute);
 
         shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
         gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
@@ -164,6 +161,7 @@ export default View.extend({
                 this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
             }
         }
+        console.log(this.globject.stride);
         if (this.globject.textureUrl) {
             this.globject.texture = WebGlApi.gl.createTexture();
             this._initTexture(this.globject.textureUrl, this.globject.texture)
