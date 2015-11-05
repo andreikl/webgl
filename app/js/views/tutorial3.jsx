@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere3?isNormales=true&isTangents=true&isUVs=true', (data) => {
+        Utils.ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', (data) => {
             this._initData(data);
             this.isRun = true;
             this._tick();
@@ -161,12 +161,6 @@ export default View.extend({
                 this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
             }
         }
-        console.log(this.globject.stride);
-        console.log(this.globject.textureUrl);
-        console.log(this.globject.bumpMapUrl);
-        console.log(sphere.vertices[3]);
-        console.log(sphere.vertices[4]);
-        console.log(sphere.vertices[5]);
         if (this.globject.textureUrl) {
             this.globject.texture = WebGlApi.gl.createTexture();
             this._initTexture(this.globject.textureUrl, this.globject.texture)

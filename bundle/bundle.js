@@ -40039,53 +40039,6 @@
 	    }
 	};
 
-	WebGlApi.drawFrameOld = function (shaderProgram, globj, isSkelet) {
-	    WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);
-	    WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelViewMatrixUniform, false, WebGlApi.vMatrix);
-	    if (shaderProgram.modelNormalMatrixUniform !== undefined) {
-	        WebGlApi.gl.uniformMatrix3fv(shaderProgram.modelNormalMatrixUniform, false, WebGlApi.nMatrix);
-	    }
-
-	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, globj.vertices);
-	    WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 0);
-	    if (shaderProgram.vertexSTangentAttribute !== undefined) {
-	        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexSTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 12);
-	    }
-	    if (shaderProgram.vertexTTangentAttribute !== undefined) {
-	        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 24);
-	    }
-	    if (shaderProgram.vertexNormalAttribute !== undefined) {
-	        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 36);
-	    }
-	    if (shaderProgram.vertexTextureAttribute !== undefined) {
-	        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTextureAttribute, 2, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 48);
-	    }
-	    if (globj.texture !== undefined) {
-	        WebGlApi.gl.activeTexture(WebGlApi.gl.TEXTURE0);
-	        WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, globj.texture);
-	        WebGlApi.gl.uniform1i(shaderProgram.samplerUniform, 0);
-	    }
-	    if (globj.bumpMap !== undefined) {
-	        WebGlApi.gl.activeTexture(WebGlApi.gl.TEXTURE1);
-	        WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, globj.bumpMap);
-	        WebGlApi.gl.uniform1i(shaderProgram.bumpUniform, 1);
-	    }
-
-	    var drown = 0;
-	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, globj.triangles);
-	    for (var i = 0; i < globj.buffers.length; i++) {
-	        //for (var i = 0; i < 2; i++) {
-	        var item = globj.buffers[i];
-
-	        if (isSkelet === true) {
-	            WebGlApi.gl.drawElements(WebGlApi.gl.LINE_STRIP, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
-	        } else {
-	            WebGlApi.gl.drawElements(WebGlApi.gl.TRIANGLES, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
-	        }
-	        drown += item.size;
-	    }
-	};
-
 	WebGlApi.Fps = function (element) {
 	    this.element = element;
 
@@ -45558,7 +45511,7 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere3?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', function (data) {
 	            _this._initData(data);
 	            _this.isRun = true;
 	            _this._tick();
@@ -45658,12 +45611,6 @@
 	                this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
 	            }
 	        }
-	        console.log(this.globject.stride);
-	        console.log(this.globject.textureUrl);
-	        console.log(this.globject.bumpMapUrl);
-	        console.log(sphere.vertices[3]);
-	        console.log(sphere.vertices[4]);
-	        console.log(sphere.vertices[5]);
 	        if (this.globject.textureUrl) {
 	            this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
 	            this._initTexture(this.globject.textureUrl, this.globject.texture);
@@ -45707,7 +45654,7 @@
 /* 380 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"tutorial3\">\r\n    <h1>Example 3</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+	module.exports = "<div class=\"tutorial3\">\r\n    <h1>Example 3</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
 
 /***/ },
 /* 381 */
@@ -45797,7 +45744,7 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere2', function (data) {
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', function (data) {
 	            _this._initData(data);
 	            _this.isRun = true;
 	            _this._tick();
@@ -45831,14 +45778,14 @@
 	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
 	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+
 	        shaderProgram.vertexSTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexSTangent");
 	        gl.enableVertexAttribArray(shaderProgram.vertexSTangentAttribute);
 
-	        shaderProgram.vertexTTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexTTangent");
-	        gl.enableVertexAttribArray(shaderProgram.vertexTTangentAttribute);
-
-	        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-	        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	        //shaderProgram.vertexTTangentAttribute = gl.getAttribLocation(shaderProgram, "aVertexTTangent");
+	        //gl.enableVertexAttribArray(shaderProgram.vertexTTangentAttribute);
 
 	        shaderProgram.vertexTextureAttribute = gl.getAttribLocation(shaderProgram, "aVertexTexture");
 	        gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
@@ -45900,6 +45847,8 @@
 	                this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
 	            }
 	        }
+	        console.log(this.globject.stride);
+
 	        if (this.globject.textureUrl) {
 	            this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
 	            this._initTexture(this.globject.textureUrl, this.globject.texture);
@@ -45930,7 +45879,7 @@
 	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-	        _utilsWebglhelpersJsx2['default'].drawFrameOld(this.shaderProgram, this.globject, false);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();
@@ -45943,7 +45892,7 @@
 /* 382 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec3 aVertexTTangent;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n\r\n            vec4 tt = vec4(aVertexTTangent, 1.0);\r\n\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uMVMatrix;\r\n        uniform mat4 uPMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
 
 /***/ },
 /* 383 */
