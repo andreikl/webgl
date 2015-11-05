@@ -136,6 +136,54 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
     }
 }
 
+
+WebGlApi.drawFrameOld = function(shaderProgram, globj, isSkelet) {
+    WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);
+    WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelViewMatrixUniform, false, WebGlApi.vMatrix);
+    if (shaderProgram.modelNormalMatrixUniform !== undefined) {
+        WebGlApi.gl.uniformMatrix3fv(shaderProgram.modelNormalMatrixUniform, false, WebGlApi.nMatrix);
+    }
+
+    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, globj.vertices);
+    WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 0);
+    if (shaderProgram.vertexSTangentAttribute !== undefined) {
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexSTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 12);
+    }
+    if (shaderProgram.vertexTTangentAttribute !== undefined) {
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTTangentAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 24);
+    }
+    if (shaderProgram.vertexNormalAttribute !== undefined) {
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 36);
+    }
+    if (shaderProgram.vertexTextureAttribute !== undefined) {
+        WebGlApi.gl.vertexAttribPointer(shaderProgram.vertexTextureAttribute, 2, WebGlApi.gl.FLOAT, WebGlApi.gl.GL_FALSE, globj.stride, 48);
+    }
+    if (globj.texture !== undefined) {
+        WebGlApi.gl.activeTexture(WebGlApi.gl.TEXTURE0);
+        WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, globj.texture);
+        WebGlApi.gl.uniform1i(shaderProgram.samplerUniform, 0);
+    }
+    if (globj.bumpMap !== undefined) {
+        WebGlApi.gl.activeTexture(WebGlApi.gl.TEXTURE1);
+        WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, globj.bumpMap);
+        WebGlApi.gl.uniform1i(shaderProgram.bumpUniform, 1);
+    }
+
+    var drown = 0;
+    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, globj.triangles);
+    for (var i = 0; i < globj.buffers.length; i++) {
+        //for (var i = 0; i < 2; i++) {
+        var item = globj.buffers[i];
+
+        if (isSkelet === true) {
+            WebGlApi.gl.drawElements(WebGlApi.gl.LINE_STRIP, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
+        } else {
+            WebGlApi.gl.drawElements(WebGlApi.gl.TRIANGLES, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
+        }
+        drown += item.size;
+    }
+}
+
 WebGlApi.Fps = function (element) {
     this.element = element;
 

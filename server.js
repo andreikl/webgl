@@ -161,19 +161,17 @@ server.route({
         }
 
         var stride = 3;
-        if (!request.query.isNormals) {
-            request.query.isNormals = false;
+        if (request.query.isNormales) {
             stride += 3;
         }
-        if (!request.query.isTangents) {
-            request.query.isTangents = false;
+        if (request.query.isTangents) {
             stride += 3;
         }
-        if (!request.query.isUVs) {
-            request.query.isUVs = false;
+        if (request.query.isUVs) {
             stride += 2;
         }
 
+        console.log(stride);
         var vertices = new Array((2 + (request.query.rows - 1) * (request.query.columns + 1)) * stride);
 
         var step_row_angle = Math.PI / request.query.rows;

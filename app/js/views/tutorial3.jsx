@@ -162,6 +162,11 @@ export default View.extend({
             }
         }
         console.log(this.globject.stride);
+        console.log(this.globject.textureUrl);
+        console.log(this.globject.bumpMapUrl);
+        console.log(sphere.vertices[3]);
+        console.log(sphere.vertices[4]);
+        console.log(sphere.vertices[5]);
         if (this.globject.textureUrl) {
             this.globject.texture = WebGlApi.gl.createTexture();
             this._initTexture(this.globject.textureUrl, this.globject.texture)
