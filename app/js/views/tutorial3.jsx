@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', (data) => {
+        Utils.ajaxGet('/api/getSphere3?isNormales=true&isTangents=true&isUVs=true', (data) => {
             this._initData(data);
             this.isRun = true;
             this._tick();

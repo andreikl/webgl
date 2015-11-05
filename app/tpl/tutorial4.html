@@ -1,12 +1,14 @@
 ﻿<div class="tutorial4">
     <h1>Example 4</h1>
     <div data-hook="fps">---</div>
-    <canvas data-hook="canvas" width="600" height="600">Canvas element is not supported</canvas>
+    <canvas data-hook="canvas" width="1200" height="768">Canvas element is not supported</canvas>
     <form id="configure-form">
         <input type="submit" name="GetSphere" value="Get Sphere"></input>
     </form>
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
+        attribute vec3 aVertexSTangent;
+        attribute vec3 aVertexTTangent;
         attribute vec3 aVertexNormal;
         attribute vec2 aVertexTexture;
 
@@ -14,28 +16,36 @@
         uniform mat4 uPMatrix;
         uniform mat3 uNMatrix;
 
-        varying vec2 vVertexTexture;
-        varying vec3 vNormalEyeVector;
         varying vec3 vVertexEyePosition;
+        varying vec2 vUV;
+        varying mat3 tbn;
 
         void main(void) {
+
+            vec4 tt = vec4(aVertexTTangent, 1.0);
+
+            // Create the Tangent-Binormal-Normal Matrix used for transforming
+            // coordinates from object space to tangent space
+            vec3 vNormal = normalize(uNMatrix * aVertexNormal);
+            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);
+            vec3 vBinormal = normalize(cross(vNormal, vTangent));
+            tbn = mat3(vTangent, vBinormal, vNormal);
+
             // Get the vertex position in eye coordinates
             vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
-            // Transform the normal (n) to eye coordinates
-            vNormalEyeVector = normalize(uNMatrix * aVertexNormal);
+            vUV = aVertexTexture;
 
             gl_Position = uPMatrix * vertexEyePosition4;
-            vVertexTexture = aVertexTexture;
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
         precision highp float;
 
-        varying vec2 vVertexTexture;
-        varying vec3 vNormalEyeVector;
         varying vec3 vVertexEyePosition;
+        varying vec2 vUV;
+        varying mat3 tbn;
 
         uniform vec3 uLightPosition;
 
@@ -44,20 +54,27 @@
         uniform vec3 uLightSpecular;
 
         uniform float uMaterialShininess;
+
         uniform sampler2D uSampler;
+        uniform sampler2D uBump;
 
         void main(void) {
-            vec3 normalEyeVector = normalize(vNormalEyeVector);
+            // Transform texture coordinate of normal map to a range (-1.0, 1.0)
+            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;
+
+            // Transform the normal vector in the RGB channels to tangent space
+            vec3 normal = normalize(tbn * normalCoordinate.rgb);
 
             // Calculate the vector (l) to the light source
             vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);
+
             // Calculate n dot l for diffuse lighting
-            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);
+            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);
 
             float specularLightWeighting = 0.0;
             if(diffuseLightWeighting > 0.0) {
                 // Calculate the reflection vector (r) that is needed for specular light
-                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);
+                vec3 reflectionVector = reflect(-lightVector, normal);
                 // The camera in eye coordinates is located in the origin and is pointing
                 // along the negative z-axis. Calculate viewVector (v)
                 // in eye coordinates as:
@@ -69,7 +86,8 @@
 
             vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;
 
-            vec4 texelColor = texture2D(uSampler, vVertexTexture);
+            vec4 texelColor = texture2D(uSampler, vUV);
+            
             gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);
         }
     </script>
