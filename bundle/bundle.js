@@ -45797,6 +45797,8 @@
 	        }
 
 	        this.fps.update();
+
+	        _utilsWebglhelpersJsx2['default'].nMatrix = _glMatrix2['default'].mat3.translate(_utilsWebglhelpersJsx2['default'].nMatrix, _utilsWebglhelpersJsx2['default'].nMatrix, [0.1, 0.0, 0.0]);
 	        //var angle = clock.getElapsedTime() / 1000;
 	        //rotateViewMatrices(angle);
 
