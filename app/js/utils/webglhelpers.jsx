@@ -30,6 +30,7 @@ var WebGlApi = {
 };
 
 WebGlApi.initWebGl = function (canvas) {
+    WebGlApi.gl = undefined;
     if (!WebGlApi.gl) {
         WebGlApi.gl = canvas.getContext("webgl");
     }
@@ -91,6 +92,40 @@ WebGlApi.getShader = function(shaderScript) {
 
     return shader;
 }
+
+WebGlApi.setUpScene = function (scene, data) {
+    var verticesBuffer = WebGlApi.gl.createBuffer();
+    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
+    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
+
+    var trianglesBuffer = WebGlApi.gl.createBuffer();
+    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
+    WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
+
+    scene.globject = {};
+    scene.globject.vertices = verticesBuffer;
+    scene.globject.triangles = trianglesBuffer;
+    scene.globject.types = data.types;
+    scene.globject.buffers = data.buffers;
+
+    scene.globject.stride = 0;
+    for (var i = 0; i < data.types.length; i++) {
+        scene.globject.stride += data.types[i].size;
+        if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
+            scene.globject.textureUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+        } else if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
+            scene.globject.bumpMapUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+        }
+    }
+    if (scene.globject.textureUrl) {
+        scene.globject.texture = WebGlApi.gl.createTexture();
+        scene._initTexture(scene.globject.textureUrl, scene.globject.texture)
+    }
+    if (scene.globject.bumpMapUrl) {
+        scene.globject.bumpMap = WebGlApi.gl.createTexture();
+        scene._initTexture(scene.globject.bumpMapUrl, scene.globject.bumpMap)
+    }
+};
 
 WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
     WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);

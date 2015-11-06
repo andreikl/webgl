@@ -39811,8 +39811,9 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere1', function (data) {
-	            _this._initData(data);
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+
 	            _this.isRun = true;
 	            _this._tick();
 	        }, function (error) {
@@ -39851,26 +39852,6 @@
 
 	        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
 	        return shaderProgram;
-	    },
-	    _initData: function _initData(sphere) {
-	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        this.globject = {};
-	        this.globject.vertices = verticesBuffer;
-	        this.globject.triangles = trianglesBuffer;
-	        this.globject.types = sphere.types;
-	        this.globject.buffers = sphere.buffers;
-
-	        this.globject.stride = 0;
-	        for (var i = 0; i < sphere.types.length; i++) {
-	            this.globject.stride += sphere.types[i].size;
-	        }
 	    },
 	    _tick: function _tick() {
 	        var _this2 = this;
@@ -39933,6 +39914,7 @@
 	};
 
 	WebGlApi.initWebGl = function (canvas) {
+	    WebGlApi.gl = undefined;
 	    if (!WebGlApi.gl) {
 	        WebGlApi.gl = canvas.getContext("webgl");
 	    }
@@ -39993,6 +39975,40 @@
 	    }
 
 	    return shader;
+	};
+
+	WebGlApi.setUpScene = function (scene, data) {
+	    var verticesBuffer = WebGlApi.gl.createBuffer();
+	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
+	    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
+
+	    var trianglesBuffer = WebGlApi.gl.createBuffer();
+	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
+	    WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
+
+	    scene.globject = {};
+	    scene.globject.vertices = verticesBuffer;
+	    scene.globject.triangles = trianglesBuffer;
+	    scene.globject.types = data.types;
+	    scene.globject.buffers = data.buffers;
+
+	    scene.globject.stride = 0;
+	    for (var i = 0; i < data.types.length; i++) {
+	        scene.globject.stride += data.types[i].size;
+	        if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
+	            scene.globject.textureUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+	        } else if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
+	            scene.globject.bumpMapUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+	        }
+	    }
+	    if (scene.globject.textureUrl) {
+	        scene.globject.texture = WebGlApi.gl.createTexture();
+	        scene._initTexture(scene.globject.textureUrl, scene.globject.texture);
+	    }
+	    if (scene.globject.bumpMapUrl) {
+	        scene.globject.bumpMap = WebGlApi.gl.createTexture();
+	        scene._initTexture(scene.globject.bumpMapUrl, scene.globject.bumpMap);
+	    }
 	};
 
 	WebGlApi.drawFrame = function (shaderProgram, globj, isSkelet) {
@@ -45320,8 +45336,9 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere1', function (data) {
-	            _this._initData(data);
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+
 	            _this.isRun = true;
 	            _this._tick();
 	        }, function (error) {
@@ -45366,26 +45383,6 @@
 	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
 	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
 	        return shaderProgram;
-	    },
-	    _initData: function _initData(sphere) {
-	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        this.globject = {};
-	        this.globject.vertices = verticesBuffer;
-	        this.globject.triangles = trianglesBuffer;
-	        this.globject.types = sphere.types;
-	        this.globject.buffers = sphere.buffers;
-
-	        this.globject.stride = 0;
-	        for (var i = 0; i < sphere.types.length; i++) {
-	            this.globject.stride += sphere.types[i].size;
-	        }
 	    },
 	    _tick: function _tick() {
 	        var _this2 = this;
@@ -45511,8 +45508,9 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _this._initData(data);
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+
 	            _this.isRun = true;
 	            _this._tick();
 	        }, function (error) {
@@ -45586,39 +45584,6 @@
 	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
 	        };
 	        image.src = url;
-	    },
-	    _initData: function _initData(sphere) {
-	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        this.globject = {};
-	        this.globject.vertices = verticesBuffer;
-	        this.globject.triangles = trianglesBuffer;
-	        this.globject.types = sphere.types;
-	        this.globject.buffers = sphere.buffers;
-
-	        this.globject.stride = 0;
-	        for (var i = 0; i < sphere.types.length; i++) {
-	            this.globject.stride += sphere.types[i].size;
-	            if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TEXTURE) {
-	                this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
-	            } else if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TANGENTS) {
-	                this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
-	            }
-	        }
-	        if (this.globject.textureUrl) {
-	            this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
-	            this._initTexture(this.globject.textureUrl, this.globject.texture);
-	        }
-	        if (this.globject.bumpMapUrl) {
-	            this.globject.bumpMap = _utilsWebglhelpersJsx2['default'].gl.createTexture();
-	            this._initTexture(this.globject.bumpMapUrl, this.globject.bumpMap);
-	        }
 	    },
 	    _tick: function _tick() {
 	        var _this2 = this;
@@ -45744,8 +45709,9 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere2?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _this._initData(data);
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+
 	            _this.isRun = true;
 	            _this._tick();
 	        }, function (error) {
@@ -45822,41 +45788,6 @@
 	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
 	        };
 	        image.src = url;
-	    },
-	    _initData: function _initData(sphere) {
-	        var verticesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, verticesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        var trianglesBuffer = _utilsWebglhelpersJsx2['default'].gl.createBuffer();
-	        _utilsWebglhelpersJsx2['default'].gl.bindBuffer(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-	        _utilsWebglhelpersJsx2['default'].gl.bufferData(_utilsWebglhelpersJsx2['default'].gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), _utilsWebglhelpersJsx2['default'].gl.STATIC_DRAW);
-
-	        this.globject = {};
-	        this.globject.vertices = verticesBuffer;
-	        this.globject.triangles = trianglesBuffer;
-	        this.globject.types = sphere.types;
-	        this.globject.buffers = sphere.buffers;
-
-	        this.globject.stride = 0;
-	        for (var i = 0; i < sphere.types.length; i++) {
-	            this.globject.stride += sphere.types[i].size;
-	            if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TEXTURE) {
-	                this.globject.textureUrl = window.app.config.baseUrl + this.globject.types[i].tag;
-	            } else if (this.globject.types[i].dataType == _utilsWebglhelpersJsx2['default'].DATA_TYPE.TANGENTS) {
-	                this.globject.bumpMapUrl = window.app.config.baseUrl + this.globject.types[i].tag;
-	            }
-	        }
-	        console.log(this.globject.stride);
-
-	        if (this.globject.textureUrl) {
-	            this.globject.texture = _utilsWebglhelpersJsx2['default'].gl.createTexture();
-	            this._initTexture(this.globject.textureUrl, this.globject.texture);
-	        }
-	        if (this.globject.bumpMapUrl) {
-	            this.globject.bumpMap = _utilsWebglhelpersJsx2['default'].gl.createTexture();
-	            this._initTexture(this.globject.bumpMapUrl, this.globject.bumpMap);
-	        }
 	    },
 	    _tick: function _tick() {
 	        var _this2 = this;

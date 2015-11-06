@@ -60,8 +60,9 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere1', (data) => {
-            this._initData(data);
+        Utils.ajaxGet('/api/getSphere', (data) => {
+            WebGlApi.setUpScene(this, data);
+
             this.isRun = true;
             this._tick();
         }, function (error) {
@@ -100,26 +101,6 @@ export default View.extend({
 
         shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
         return shaderProgram;
-    },
-    _initData (sphere) {
-        var verticesBuffer = WebGlApi.gl.createBuffer();
-        WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
-        WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(sphere.vertices), WebGlApi.gl.STATIC_DRAW);
-
-        var trianglesBuffer = WebGlApi.gl.createBuffer();
-        WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
-        WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(sphere.triangles), WebGlApi.gl.STATIC_DRAW);
-
-        this.globject = {};
-        this.globject.vertices = verticesBuffer;
-        this.globject.triangles = trianglesBuffer;
-        this.globject.types = sphere.types;
-        this.globject.buffers = sphere.buffers;
-
-        this.globject.stride = 0;
-        for (var i = 0; i < sphere.types.length; i++) {
-            this.globject.stride += sphere.types[i].size;
-        }
     },
     _tick () {
         if (this.isRun !== true) { return; }
