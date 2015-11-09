@@ -50,6 +50,9 @@ WebGlApi.initWebGl = function (canvas) {
     WebGlApi.vMatrix = Matrix.mat4.create();
     Matrix.mat4.identity(WebGlApi.vMatrix);
 
+    WebGlApi.mMatrix = Matrix.mat4.create();
+    Matrix.mat4.identity(WebGlApi.mMatrix);
+
     WebGlApi.nMatrix = Matrix.mat3.create();
     Matrix.mat3.identity(WebGlApi.nMatrix);
 
@@ -128,9 +131,15 @@ WebGlApi.setUpScene = function (scene, data) {
 };
 
 WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
+
     WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);
-    WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelViewMatrixUniform, false, WebGlApi.vMatrix);
-    if (shaderProgram.modelNormalMatrixUniform !== undefined) {
+    if (shaderProgram.viewMatrixUniform) {
+        WebGlApi.gl.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, WebGlApi.vMatrix);
+    }
+    if (shaderProgram.modelMatrixUniform) {
+        WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, WebGlApi.mMatrix);
+    }
+    if (shaderProgram.modelNormalMatrixUniform) {
         WebGlApi.gl.uniformMatrix3fv(shaderProgram.modelNormalMatrixUniform, false, WebGlApi.nMatrix);
     }
 

@@ -105,7 +105,8 @@ export default View.extend({
         gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
 
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
+        shaderProgram.modelMatrixUniform = gl.getUniformLocation(shaderProgram, "uMMatrix");
         shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
 
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");

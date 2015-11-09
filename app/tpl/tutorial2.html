@@ -8,18 +8,19 @@
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
 
-        uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        uniform mat4 uVMatrix;
+        uniform mat4 uMMatrix;
         uniform mat3 uNMatrix;
 
         varying vec3 vVertexEyePosition;
 
         void main(void) {
             // Get the vertex position in eye coordinates
-            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);
+            vec4 vertexEyePosition4 = uVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
-            gl_Position = uPMatrix * vertexEyePosition4;
+            gl_Position = uPMatrix * vertexEyePosition4 * uMMatrix;
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">

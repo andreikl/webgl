@@ -108,7 +108,8 @@ export default View.extend({
         gl.enableVertexAttribArray(shaderProgram.vertexTextureAttribute);
 
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.modelViewMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
+        shaderProgram.modelMatrixUniform = gl.getUniformLocation(shaderProgram, "uMMatrix");
         shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
 
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
@@ -146,7 +147,7 @@ export default View.extend({
 
         this.fps.update();
 
-        WebGlApi.nMatrix = Matrix.mat3.translate(WebGlApi.nMatrix, WebGlApi.nMatrix, [0.1, 0.0, 0.0]);
+        WebGlApi.mMatrix = Matrix.mat3.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [-0.001, 0.0, 0.0]);
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);
 

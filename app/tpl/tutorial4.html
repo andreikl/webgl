@@ -11,8 +11,9 @@
         attribute vec3 aVertexSTangent;
         attribute vec2 aVertexTexture;
 
-        uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        uniform mat4 uVMatrix;
+        uniform mat4 uMMatrix;
         uniform mat3 uNMatrix;
 
         varying vec3 vVertexEyePosition;
@@ -28,12 +29,12 @@
             tbn = mat3(vTangent, vBinormal, vNormal);
 
             // Get the vertex position in eye coordinates
-            vec4 vertexEyePosition4 = uMVMatrix * vec4(aVertexPosition, 1.0);
+            vec4 vertexEyePosition4 = uVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
             vUV = aVertexTexture;
 
-            gl_Position = uPMatrix * vertexEyePosition4;
+            gl_Position = uPMatrix * vertexEyePosition4 * uMMatrix;
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
