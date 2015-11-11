@@ -147,7 +147,8 @@ export default View.extend({
 
         this.fps.update();
 
-        WebGlApi.mMatrix = Matrix.mat3.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [-0.001, 0.0, 0.0]);
+        Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
+
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);
 

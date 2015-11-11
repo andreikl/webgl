@@ -29,7 +29,7 @@ var Canvas = View.extend({
 
 export default View.extend({
     template: tutorial1Html,
-    pageTitle: 'Tutorial 2!',
+    pageTitle: 'Tutorial 1!',
     props: {
         main: 'state',
         canvas: 'state'
@@ -96,9 +96,9 @@ export default View.extend({
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
         shaderProgram.modelMatrixUniform = gl.getUniformLocation(shaderProgram, "uMMatrix");
+        shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
+        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 
         shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
         return shaderProgram;

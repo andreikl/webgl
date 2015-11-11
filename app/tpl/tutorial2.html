@@ -17,10 +17,10 @@
 
         void main(void) {
             // Get the vertex position in eye coordinates
-            vec4 vertexEyePosition4 = uVMatrix * vec4(aVertexPosition, 1.0);
+            vec4 vertexEyePosition4 = uMMatrix * uVMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
-            gl_Position = uPMatrix * vertexEyePosition4 * uMMatrix;
+            gl_Position = uPMatrix * vertexEyePosition4;
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">

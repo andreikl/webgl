@@ -13,7 +13,8 @@
         uniform mat4 uMMatrix;
 
         void main(void) {
-            gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);
+            mat4 MVP = uPMatrix  * uVMatrix * uMMatrix;
+            gl_Position = MVP * vec4(aVertexPosition, 1.0);
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
