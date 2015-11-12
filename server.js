@@ -154,10 +154,10 @@ server.route({
     path:'/api/getCube', 
     handler: function (request, reply) {
         if (!request.query.rows) {
-            request.query.rows = 30;
+            request.query.rows = 1;
         }
         if (!request.query.columns) {
-            request.query.columns = 25;
+            request.query.columns = 1;
         }
 
         var stride = 3;
@@ -172,7 +172,7 @@ server.route({
         }
 
         var cur_pos = 0;
-        var vertices = new Array((request.query.rows + 1) * (request.query.columns + 1) * stride * 4);
+        var vertices = new Array((request.query.rows + 1) * (request.query.columns + 1) * stride * 6);
 
         var step_x = 2.0 / request.query.columns;
         var step_y = 2.0 / request.query.rows;
@@ -182,10 +182,10 @@ server.route({
         var pos_z = 1.0;
 
         var step_uv_x = 1.0 / 4 / request.query.columns;
-        var step_uv_y = 1.0 / 2 / request.query.rows;
+        var step_uv_y = 1.0 / 3 / request.query.rows;
 
-        var pos_uv_x = 0;
-        var pos_uv_y = 0;
+        var pos_uv_x = 1.0 / 4 * 1;
+        var pos_uv_y = 1.0 / 3;
         for (var y = 0; y <= request.query.rows; y++) {
             for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
@@ -219,7 +219,7 @@ server.route({
             }
             pos_x = -1.0;
             pos_y -= step_y;
-            pos_uv_x = 0;
+            pos_uv_x = 1.0 / 4 * 1;
             pos_uv_y += step_uv_y;
         }
 
@@ -227,8 +227,8 @@ server.route({
         pos_y = 1.0;
         pos_z = 1.0;
 
-        pos_uv_x = 1.0 / 4;
-        pos_uv_y = 0;
+        pos_uv_x = 1.0 / 4 * 2;
+        pos_uv_y = 1.0 / 3;
         for (var y = 0; y <= request.query.rows; y++) {
             for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
@@ -262,7 +262,7 @@ server.route({
             }
             pos_z = 1.0;
             pos_y -= step_y;
-            pos_uv_x = 1.0 / 4;
+            pos_uv_x = 1.0 / 4 * 2;
             pos_uv_y += step_uv_y;
         }
 
@@ -270,8 +270,8 @@ server.route({
         pos_y = 1.0;
         pos_z = -1.0;
 
-        pos_uv_x = 1.0 / 4 * 2;
-        pos_uv_y = 0;
+        pos_uv_x = 1.0 / 4 * 3;
+        pos_uv_y = 1.0 / 3;
         for (var y = 0; y <= request.query.rows; y++) {
             for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
@@ -305,7 +305,7 @@ server.route({
             }
             pos_x = 1.0;
             pos_y -= step_y;
-            pos_uv_x = 1.0 / 4 * 2;
+            pos_uv_x = 1.0 / 4 * 3;
             pos_uv_y += step_uv_y;
         }
 
@@ -313,8 +313,8 @@ server.route({
         pos_y = 1.0;
         pos_z = -1.0;
 
-        pos_uv_x = 1.0 / 4 * 3;
-        pos_uv_y = 0;
+        pos_uv_x = 0;
+        pos_uv_y = 1.0 / 3;
         for (var y = 0; y <= request.query.rows; y++) {
             for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
@@ -348,15 +348,101 @@ server.route({
             }
             pos_z = -1.0;
             pos_y -= step_y;
-            pos_uv_x = 1.0 / 4 * 3;
+            pos_uv_x = 0;
+            pos_uv_y += step_uv_y;
+        }
+
+        pos_x = -1.0;
+        pos_y = 1.0;
+        pos_z = 1.0;
+
+        pos_uv_x = 1.0 / 4 * 1;
+        pos_uv_y = 1.0 / 3;
+        for (var y = 0; y <= request.query.rows; y++) {
+            for (var x = 0; x <= request.query.columns; x++) {
+                // x y z
+                vertices[cur_pos + 0] = pos_x;
+                vertices[cur_pos + 1] = pos_y;
+                vertices[cur_pos + 2] = pos_z;
+                cur_pos += 3;
+                // normale
+                if (request.query.isNormales) {
+                    vertices[cur_pos + 0] = 0.0;
+                    vertices[cur_pos + 1] = 1.0;
+                    vertices[cur_pos + 2] = 0.0;
+                    cur_pos += 3;
+                }
+                // s tangent
+                if (request.query.isTangents) {
+                    vertices[cur_pos + 0] = 1.0;
+                    vertices[cur_pos + 1] = 0.0;
+                    vertices[cur_pos + 2] = 0.0;
+                    cur_pos += 3;
+                }
+                // uv
+                if (request.query.isUVs) {
+                    vertices[cur_pos + 0] = pos_uv_x;
+                    vertices[cur_pos + 1] = pos_uv_y;
+                    cur_pos += 2;
+                }
+
+                pos_x += step_x;
+                pos_uv_x += step_uv_x;
+            }
+            pos_x = -1.0;
+            pos_z -= step_y;
+            pos_uv_x = 1.0 / 4 * 1;
+            pos_uv_y -= step_uv_y;
+        }
+
+        pos_x = -1.0;
+        pos_y = -1.0;
+        pos_z = 1.0;
+
+        pos_uv_x = 1.0 / 4 * 1;
+        pos_uv_y = 1.0 / 3 * 2;
+        for (var y = 0; y <= request.query.rows; y++) {
+            for (var x = 0; x <= request.query.columns; x++) {
+                // x y z
+                vertices[cur_pos + 0] = pos_x;
+                vertices[cur_pos + 1] = pos_y;
+                vertices[cur_pos + 2] = pos_z;
+                cur_pos += 3;
+                // normale
+                if (request.query.isNormales) {
+                    vertices[cur_pos + 0] = 0.0;
+                    vertices[cur_pos + 1] = -1.0;
+                    vertices[cur_pos + 2] = 0.0;
+                    cur_pos += 3;
+                }
+                // s tangent
+                if (request.query.isTangents) {
+                    vertices[cur_pos + 0] = 1.0;
+                    vertices[cur_pos + 1] = 0.0;
+                    vertices[cur_pos + 2] = 0.0;
+                    cur_pos += 3;
+                }
+                // uv
+                if (request.query.isUVs) {
+                    vertices[cur_pos + 0] = pos_uv_x;
+                    vertices[cur_pos + 1] = pos_uv_y;
+                    cur_pos += 2;
+                }
+
+                pos_x += step_x;
+                pos_uv_x += step_uv_x;
+            }
+            pos_x = -1.0;
+            pos_z -= step_y;
+            pos_uv_x = 1.0 / 4 * 1;
             pos_uv_y += step_uv_y;
         }
 
         cur_pos = 0;
         var start_block = 0;
         var column = (request.query.columns + 1)
-        var triangles = new Array(2 * request.query.columns * request.query.rows * 3 * 4);
-        for (var i = 0; i < 4; i++) {
+        var triangles = new Array(2 * request.query.columns * request.query.rows * 3 * 6);
+        for (var i = 0; i < 6; i++) {
             for (var y = 0; y < request.query.rows; y++) {
                 for (var x = 0; x < request.query.columns; x++) {
                     triangles[cur_pos + 0] = start_block + x + y * column;
@@ -374,7 +460,7 @@ server.route({
         }
 
         var buffers = new Array();
-        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * request.query.columns * request.query.rows * 3 * 4 };
+        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * request.query.columns * request.query.rows * 3 * 6 };
 
         var objectData = {};
         objectData.name = "Box";

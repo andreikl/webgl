@@ -61,7 +61,8 @@ export default View.extend({
         }, 10);
 
         Utils.ajaxGet('/api/getSphere', (data) => {
-            WebGlApi.setUpScene(this, data);
+            this.object1 = {};
+            WebGlApi.setUpObject(this, this.object1, data);
 
             this.isRun = true;
             this._tick();
@@ -90,7 +91,6 @@ export default View.extend({
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
-        gl.useProgram(shaderProgram);
 
         // get pointers to the shader params
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -111,7 +111,7 @@ export default View.extend({
         //rotateViewMatrices(angle);
 
         WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 1.0, 0.0, 0.0, 1.0);
-        WebGlApi.drawFrame(this.shaderProgram, this.globject, true);
+        WebGlApi.drawFrame(this.shaderProgram, this.object1, true);
 
         requestAnimFrame(() => { this._tick(); });
     }

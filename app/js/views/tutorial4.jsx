@@ -60,11 +60,26 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', (data) => {
-            WebGlApi.setUpScene(this, data);
+        Utils.ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', (data) => {
+            this.object1 = {};
+            WebGlApi.setUpObject(this, this.object1, data);
 
-            this.isRun = true;
-            this._tick();
+            if (this.object2) {
+                this.isRun = true;
+                this._tick();
+            }
+        }, function (error) {
+            console.log('Error is happend: ', error);
+        });
+
+        Utils.ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', (data) => {
+            this.object2 = {};
+            WebGlApi.setUpObject(this, this.object2, data);
+
+            if (this.object1) {
+                this.isRun = true;
+                this._tick();
+            }
         }, function (error) {
             console.log('Error is happend: ', error);
         });
@@ -89,7 +104,6 @@ export default View.extend({
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
-        gl.useProgram(shaderProgram);
 
         // get pointers to the shader params
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -128,7 +142,6 @@ export default View.extend({
         var image = new Image();
         image.onload = function () {
             WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, texture);
-            //WebGlApi.gl.pixelStorei(WebGlApi.gl.UNPACK_FLIP_Y_WEBGL, true);
   
             WebGlApi.gl.texImage2D(WebGlApi.gl.TEXTURE_2D, 0, WebGlApi.gl.RGBA, WebGlApi.gl.RGBA, WebGlApi.gl.UNSIGNED_BYTE, image);
                 
@@ -136,8 +149,6 @@ export default View.extend({
             WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_MIN_FILTER, WebGlApi.gl.LINEAR);
             WebGlApi.gl.generateMipmap(WebGlApi.gl.TEXTURE_2D);
   
-            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_S, WebGlApi.gl.MIRRORED_REPEAT);
-            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_T, WebGlApi.gl.MIRRORED_REPEAT);
             WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, null); 
         }
         image.src = url;
@@ -147,7 +158,7 @@ export default View.extend({
 
         this.fps.update();
 
-        //Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
+        Matrix.mat4.translate(this.object2.mMatrix, this.object2.mMatrix, [0.0, -0.005, 0.0, 0.0]);
 
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);
@@ -162,7 +173,8 @@ export default View.extend({
         Matrix.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
         WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-        WebGlApi.drawFrame(this.shaderProgram, this.globject, false);
+        WebGlApi.drawFrame(this.shaderProgram, this.object1, false);
+        WebGlApi.drawFrame(this.shaderProgram, this.object2, false);
 
         requestAnimFrame(() => { this._tick(); });
     }

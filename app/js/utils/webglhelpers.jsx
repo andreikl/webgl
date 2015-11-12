@@ -50,9 +50,6 @@ WebGlApi.initWebGl = function (canvas) {
     WebGlApi.vMatrix = Matrix.mat4.create();
     Matrix.mat4.identity(WebGlApi.vMatrix);
 
-    WebGlApi.mMatrix = Matrix.mat4.create();
-    Matrix.mat4.identity(WebGlApi.mMatrix);
-
     WebGlApi.nMatrix = Matrix.mat3.create();
     Matrix.mat3.identity(WebGlApi.nMatrix);
 
@@ -96,7 +93,7 @@ WebGlApi.getShader = function(shaderScript) {
     return shader;
 }
 
-WebGlApi.setUpScene = function (scene, data) {
+WebGlApi.setUpObject = function (scene, obj, data) {
     var verticesBuffer = WebGlApi.gl.createBuffer();
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
     WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
@@ -105,39 +102,42 @@ WebGlApi.setUpScene = function (scene, data) {
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
     WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
 
-    scene.globject = {};
-    scene.globject.vertices = verticesBuffer;
-    scene.globject.triangles = trianglesBuffer;
-    scene.globject.types = data.types;
-    scene.globject.buffers = data.buffers;
+    obj.vertices = verticesBuffer;
+    obj.triangles = trianglesBuffer;
+    obj.types = data.types;
+    obj.buffers = data.buffers;
 
-    scene.globject.stride = 0;
+    obj.mMatrix = Matrix.mat4.create();
+    Matrix.mat4.identity(obj.mMatrix);
+
+    obj.stride = 0;
     for (var i = 0; i < data.types.length; i++) {
-        scene.globject.stride += data.types[i].size;
-        if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
-            scene.globject.textureUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
-        } else if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
-            scene.globject.bumpMapUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+        obj.stride += data.types[i].size;
+        if (obj.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
+            obj.textureUrl = window.app.config.baseUrl + obj.types[i].tag;
+        } else if (obj.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
+            obj.bumpMapUrl = window.app.config.baseUrl + obj.types[i].tag;
         }
     }
-    if (scene.globject.textureUrl) {
-        scene.globject.texture = WebGlApi.gl.createTexture();
-        scene._initTexture(scene.globject.textureUrl, scene.globject.texture)
+    if (obj.textureUrl) {
+        obj.texture = WebGlApi.gl.createTexture();
+        scene._initTexture(obj.textureUrl, obj.texture)
     }
-    if (scene.globject.bumpMapUrl) {
-        scene.globject.bumpMap = WebGlApi.gl.createTexture();
-        scene._initTexture(scene.globject.bumpMapUrl, scene.globject.bumpMap)
+    if (obj.bumpMapUrl) {
+        obj.bumpMap = WebGlApi.gl.createTexture();
+        scene._initTexture(obj.bumpMapUrl, obj.bumpMap)
     }
 };
 
 WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
+    WebGlApi.gl.useProgram(shaderProgram);
 
     WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);
     if (shaderProgram.viewMatrixUniform) {
         WebGlApi.gl.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, WebGlApi.vMatrix);
     }
     if (shaderProgram.modelMatrixUniform) {
-        WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, WebGlApi.mMatrix);
+        WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, globj.mMatrix);
     }
     if (shaderProgram.modelNormalMatrixUniform) {
         WebGlApi.gl.uniformMatrix3fv(shaderProgram.modelNormalMatrixUniform, false, WebGlApi.nMatrix);

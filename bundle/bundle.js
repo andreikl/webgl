@@ -39812,7 +39812,8 @@
 	        }, 10);
 
 	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
-	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+	            _this.object1 = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object1, data);
 
 	            _this.isRun = true;
 	            _this._tick();
@@ -39841,7 +39842,6 @@
 	        gl.attachShader(shaderProgram, vertexShader);
 	        gl.attachShader(shaderProgram, fragmentShader);
 	        gl.linkProgram(shaderProgram);
-	        gl.useProgram(shaderProgram);
 
 	        // get pointers to the shader params
 	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -39866,7 +39866,7 @@
 	        //rotateViewMatrices(angle);
 
 	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 1.0, 0.0, 0.0, 1.0);
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, true);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, true);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();
@@ -39935,9 +39935,6 @@
 	    WebGlApi.vMatrix = _glMatrix2["default"].mat4.create();
 	    _glMatrix2["default"].mat4.identity(WebGlApi.vMatrix);
 
-	    WebGlApi.mMatrix = _glMatrix2["default"].mat4.create();
-	    _glMatrix2["default"].mat4.identity(WebGlApi.mMatrix);
-
 	    WebGlApi.nMatrix = _glMatrix2["default"].mat3.create();
 	    _glMatrix2["default"].mat3.identity(WebGlApi.nMatrix);
 
@@ -39981,7 +39978,7 @@
 	    return shader;
 	};
 
-	WebGlApi.setUpScene = function (scene, data) {
+	WebGlApi.setUpObject = function (scene, obj, data) {
 	    var verticesBuffer = WebGlApi.gl.createBuffer();
 	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
 	    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
@@ -39990,39 +39987,42 @@
 	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
 	    WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
 
-	    scene.globject = {};
-	    scene.globject.vertices = verticesBuffer;
-	    scene.globject.triangles = trianglesBuffer;
-	    scene.globject.types = data.types;
-	    scene.globject.buffers = data.buffers;
+	    obj.vertices = verticesBuffer;
+	    obj.triangles = trianglesBuffer;
+	    obj.types = data.types;
+	    obj.buffers = data.buffers;
 
-	    scene.globject.stride = 0;
+	    obj.mMatrix = _glMatrix2["default"].mat4.create();
+	    _glMatrix2["default"].mat4.identity(obj.mMatrix);
+
+	    obj.stride = 0;
 	    for (var i = 0; i < data.types.length; i++) {
-	        scene.globject.stride += data.types[i].size;
-	        if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
-	            scene.globject.textureUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
-	        } else if (scene.globject.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
-	            scene.globject.bumpMapUrl = window.app.config.baseUrl + scene.globject.types[i].tag;
+	        obj.stride += data.types[i].size;
+	        if (obj.types[i].dataType == WebGlApi.DATA_TYPE.TEXTURE) {
+	            obj.textureUrl = window.app.config.baseUrl + obj.types[i].tag;
+	        } else if (obj.types[i].dataType == WebGlApi.DATA_TYPE.TANGENTS) {
+	            obj.bumpMapUrl = window.app.config.baseUrl + obj.types[i].tag;
 	        }
 	    }
-	    if (scene.globject.textureUrl) {
-	        scene.globject.texture = WebGlApi.gl.createTexture();
-	        scene._initTexture(scene.globject.textureUrl, scene.globject.texture);
+	    if (obj.textureUrl) {
+	        obj.texture = WebGlApi.gl.createTexture();
+	        scene._initTexture(obj.textureUrl, obj.texture);
 	    }
-	    if (scene.globject.bumpMapUrl) {
-	        scene.globject.bumpMap = WebGlApi.gl.createTexture();
-	        scene._initTexture(scene.globject.bumpMapUrl, scene.globject.bumpMap);
+	    if (obj.bumpMapUrl) {
+	        obj.bumpMap = WebGlApi.gl.createTexture();
+	        scene._initTexture(obj.bumpMapUrl, obj.bumpMap);
 	    }
 	};
 
 	WebGlApi.drawFrame = function (shaderProgram, globj, isSkelet) {
+	    WebGlApi.gl.useProgram(shaderProgram);
 
 	    WebGlApi.gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, WebGlApi.pMatrix);
 	    if (shaderProgram.viewMatrixUniform) {
 	        WebGlApi.gl.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, WebGlApi.vMatrix);
 	    }
 	    if (shaderProgram.modelMatrixUniform) {
-	        WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, WebGlApi.mMatrix);
+	        WebGlApi.gl.uniformMatrix4fv(shaderProgram.modelMatrixUniform, false, globj.mMatrix);
 	    }
 	    if (shaderProgram.modelNormalMatrixUniform) {
 	        WebGlApi.gl.uniformMatrix3fv(shaderProgram.modelNormalMatrixUniform, false, WebGlApi.nMatrix);
@@ -45346,7 +45346,8 @@
 	        }, 10);
 
 	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
-	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+	            _this.object1 = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object1, data);
 
 	            _this.isRun = true;
 	            _this._tick();
@@ -45374,7 +45375,6 @@
 	        gl.attachShader(shaderProgram, vertexShader);
 	        gl.attachShader(shaderProgram, fragmentShader);
 	        gl.linkProgram(shaderProgram);
-	        gl.useProgram(shaderProgram);
 
 	        // get pointers to the shader params
 	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -45415,7 +45415,7 @@
 	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();
@@ -45519,7 +45519,8 @@
 	        }, 10);
 
 	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+	            _this.object1 = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object1, data);
 
 	            _this.isRun = true;
 	            _this._tick();
@@ -45547,7 +45548,6 @@
 	        gl.attachShader(shaderProgram, vertexShader);
 	        gl.attachShader(shaderProgram, fragmentShader);
 	        gl.linkProgram(shaderProgram);
-	        gl.useProgram(shaderProgram);
 
 	        // get pointers to the shader params
 	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -45617,7 +45617,7 @@
 	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();
@@ -45720,11 +45720,26 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	            _this.object1 = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object1, data);
 
-	            _this.isRun = true;
-	            _this._tick();
+	            if (_this.object2) {
+	                _this.isRun = true;
+	                _this._tick();
+	            }
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	            _this.object2 = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object2, data);
+
+	            if (_this.object1) {
+	                _this.isRun = true;
+	                _this._tick();
+	            }
 	        }, function (error) {
 	            console.log('Error is happend: ', error);
 	        });
@@ -45749,7 +45764,6 @@
 	        gl.attachShader(shaderProgram, vertexShader);
 	        gl.attachShader(shaderProgram, fragmentShader);
 	        gl.linkProgram(shaderProgram);
-	        gl.useProgram(shaderProgram);
 
 	        // get pointers to the shader params
 	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
@@ -45787,7 +45801,6 @@
 	        var image = new Image();
 	        image.onload = function () {
 	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, texture);
-	            //WebGlApi.gl.pixelStorei(WebGlApi.gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	            _utilsWebglhelpersJsx2['default'].gl.texImage2D(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, 0, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.UNSIGNED_BYTE, image);
 
@@ -45795,8 +45808,6 @@
 	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MIN_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
 	            _utilsWebglhelpersJsx2['default'].gl.generateMipmap(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D);
 
-	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_S, WebGlApi.gl.MIRRORED_REPEAT);
-	            //WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_WRAP_T, WebGlApi.gl.MIRRORED_REPEAT);
 	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
 	        };
 	        image.src = url;
@@ -45810,7 +45821,7 @@
 
 	        this.fps.update();
 
-	        //Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
+	        _glMatrix2['default'].mat4.translate(this.object2.mMatrix, this.object2.mMatrix, [0.0, -0.005, 0.0, 0.0]);
 
 	        //var angle = clock.getElapsedTime() / 1000;
 	        //rotateViewMatrices(angle);
@@ -45825,7 +45836,8 @@
 	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.globject, false);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
+	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object2, false);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();
@@ -45908,7 +45920,7 @@
 
 
 	// module
-	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  background: black; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
+	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  background: black;\n  color: white; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
 
 	// exports
 
