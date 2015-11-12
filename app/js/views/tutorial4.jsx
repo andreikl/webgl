@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSquare?isNormales=true&isTangents=true&isUVs=true', (data) => {
+        Utils.ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', (data) => {
             WebGlApi.setUpScene(this, data);
 
             this.isRun = true;

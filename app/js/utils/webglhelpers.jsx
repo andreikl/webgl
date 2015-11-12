@@ -168,7 +168,6 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
     var drown = 0;
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, globj.triangles);
     for (var i = 0; i < globj.buffers.length; i++) {
-        //for (var i = 0; i < 2; i++) {
         var item = globj.buffers[i];
 
         if (isSkelet === true) {
@@ -176,7 +175,7 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
         } else {
             WebGlApi.gl.drawElements(WebGlApi.gl.TRIANGLES, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
         }
-        drown += item.size;
+        drown += (item.size * 2);
     }
 }
 

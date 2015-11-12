@@ -40053,7 +40053,6 @@
 	    var drown = 0;
 	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, globj.triangles);
 	    for (var i = 0; i < globj.buffers.length; i++) {
-	        //for (var i = 0; i < 2; i++) {
 	        var item = globj.buffers[i];
 
 	        if (isSkelet === true) {
@@ -40061,7 +40060,7 @@
 	        } else {
 	            WebGlApi.gl.drawElements(WebGlApi.gl.TRIANGLES, item.size, WebGlApi.gl.UNSIGNED_SHORT, drown);
 	        }
-	        drown += item.size;
+	        drown += item.size * 2;
 	    }
 	};
 
@@ -45721,7 +45720,7 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSquare?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', function (data) {
 	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
 
 	            _this.isRun = true;

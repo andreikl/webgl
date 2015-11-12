@@ -151,7 +151,7 @@ var halfPi = Math.PI / 2;
 // Add the routes
 server.route({
     method: 'GET',
-    path:'/api/getSquare', 
+    path:'/api/getCube', 
     handler: function (request, reply) {
         if (!request.query.rows) {
             request.query.rows = 30;
@@ -172,7 +172,7 @@ server.route({
         }
 
         var cur_pos = 0;
-        var vertices = new Array((request.query.rows * (request.query.columns - 1)) * stride * 4);
+        var vertices = new Array((request.query.rows + 1) * (request.query.columns + 1) * stride * 4);
 
         var step_x = 2.0 / request.query.columns;
         var step_y = 2.0 / request.query.rows;
@@ -187,7 +187,7 @@ server.route({
         var pos_uv_x = 0;
         var pos_uv_y = 0;
         for (var y = 0; y <= request.query.rows; y++) {
-            for (var x = 0; x < request.query.columns - 1; x++) {
+            for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
                 vertices[cur_pos + 0] = pos_x;
                 vertices[cur_pos + 1] = pos_y;
@@ -230,7 +230,7 @@ server.route({
         pos_uv_x = 1.0 / 4;
         pos_uv_y = 0;
         for (var y = 0; y <= request.query.rows; y++) {
-            for (var x = 0; x < request.query.columns - 1; x++) {
+            for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
                 vertices[cur_pos + 0] = pos_x;
                 vertices[cur_pos + 1] = pos_y;
@@ -273,7 +273,7 @@ server.route({
         pos_uv_x = 1.0 / 4 * 2;
         pos_uv_y = 0;
         for (var y = 0; y <= request.query.rows; y++) {
-            for (var x = 0; x < request.query.columns - 1; x++) {
+            for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
                 vertices[cur_pos + 0] = pos_x;
                 vertices[cur_pos + 1] = pos_y;
@@ -316,7 +316,7 @@ server.route({
         pos_uv_x = 1.0 / 4 * 3;
         pos_uv_y = 0;
         for (var y = 0; y <= request.query.rows; y++) {
-            for (var x = 0; x < request.query.columns - 1; x++) {
+            for (var x = 0; x <= request.query.columns; x++) {
                 // x y z
                 vertices[cur_pos + 0] = pos_x;
                 vertices[cur_pos + 1] = pos_y;
@@ -354,80 +354,27 @@ server.route({
 
         cur_pos = 0;
         var start_block = 0;
-        var triangles = new Array(2 * request.query.columns * (request.query.rows - 1) * 3 * 4);
-        for (var y = 0; y <= request.query.rows - 1; y++) {
-            for (var x = 0; x < request.query.columns - 2; x++) {
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + (y + 1) * (request.query.columns - 1);
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + 1;
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-            }
-        }
-
-        start_block = request.query.columns * (request.query.rows - 1) * 1;
-        for (var y = 0; y <= request.query.rows - 1; y++) {
-            for (var x = 0; x < request.query.columns - 2; x++) {
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + (y + 1) * (request.query.columns - 1);
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + 1;
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-            }
-        }
-
-        start_block = request.query.columns * (request.query.rows - 1) * 2;
-        for (var y = 0; y <= request.query.rows - 1; y++) {
-            for (var x = 0; x < request.query.columns - 2; x++) {
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + (y + 1) * (request.query.columns - 1);
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-
-                triangles[cur_pos + 0] = start_block + x;
-                triangles[cur_pos + 1] = start_block + x + 1;
-                triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
-                cur_pos += 3;
-            }
-        }
-
-        start_block = request.query.columns * (request.query.rows - 1) * 3;
-        for (var y = 0; y <= request.query.rows - 1; y++) {
-            for (var x = 0; x < request.query.columns - 2; x++) {
-                //if (x !== request.query.columns - 2) {
-                    triangles[cur_pos + 0] = start_block + x;
-                    triangles[cur_pos + 1] = start_block + x + (y + 1) * (request.query.columns - 1);
-                    triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
+        var column = (request.query.columns + 1)
+        var triangles = new Array(2 * request.query.columns * request.query.rows * 3 * 4);
+        for (var i = 0; i < 4; i++) {
+            for (var y = 0; y < request.query.rows; y++) {
+                for (var x = 0; x < request.query.columns; x++) {
+                    triangles[cur_pos + 0] = start_block + x + y * column;
+                    triangles[cur_pos + 1] = start_block + x + (y + 1) * column;
+                    triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * column;
                     cur_pos += 3;
 
-                    triangles[cur_pos + 0] = start_block + x;
-                    triangles[cur_pos + 1] = start_block + x + 1;
-                    triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * (request.query.columns - 1);
+                    triangles[cur_pos + 0] = start_block + x + y * column;
+                    triangles[cur_pos + 1] = start_block + (x + 1) + y * column;
+                    triangles[cur_pos + 2] = start_block + (x + 1) + (y + 1) * column;
                     cur_pos += 3;
-                /*} else {
-                    triangles[cur_pos + 0] = start_block + x;
-                    triangles[cur_pos + 1] = start_block + x + (y + 1) * (request.query.columns - 1);
-                    triangles[cur_pos + 2] = 0 + (y + 1) * (request.query.columns - 1);
-                    cur_pos += 3;
-
-                    triangles[cur_pos + 0] = start_block + x;
-                    triangles[cur_pos + 1] = 0;
-                    triangles[cur_pos + 2] = 0 + (y + 1) * (request.query.columns - 1);
-                    cur_pos += 3;
-                }*/
+                }
             }
+            start_block += (request.query.columns + 1) * (request.query.rows + 1);
         }
 
         var buffers = new Array();
-        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * request.query.columns * (request.query.rows - 1) * 3 * 3 };
+        buffers[0] = { bufferType: WebGlApi.BUFFER_TYPE.TRIANGLES, size: 2 * request.query.columns * request.query.rows * 3 * 4 };
 
         var objectData = {};
         objectData.name = "Box";
