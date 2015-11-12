@@ -60,7 +60,7 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
-        Utils.ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', (data) => {
+        Utils.ajaxGet('/api/getSquare?isNormales=true&isTangents=true&isUVs=true', (data) => {
             WebGlApi.setUpScene(this, data);
 
             this.isRun = true;
@@ -147,7 +147,7 @@ export default View.extend({
 
         this.fps.update();
 
-        Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
+        //Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
 
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);

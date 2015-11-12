@@ -45721,7 +45721,7 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
-	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSquare?isNormales=true&isTangents=true&isUVs=true', function (data) {
 	            _utilsWebglhelpersJsx2['default'].setUpScene(_this, data);
 
 	            _this.isRun = true;
@@ -45811,7 +45811,7 @@
 
 	        this.fps.update();
 
-	        _glMatrix2['default'].mat4.translate(_utilsWebglhelpersJsx2['default'].mMatrix, _utilsWebglhelpersJsx2['default'].mMatrix, [0.0, -0.005, 0.0, 0.0]);
+	        //Matrix.mat4.translate(WebGlApi.mMatrix, WebGlApi.mMatrix, [0.0, -0.005, 0.0, 0.0]);
 
 	        //var angle = clock.getElapsedTime() / 1000;
 	        //rotateViewMatrices(angle);
@@ -45909,7 +45909,7 @@
 
 
 	// module
-	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  border-style: solid;\n  border-width: 4px;\n  border-color: #FF0000; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
+	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  background: black; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
 
 	// exports
 
