@@ -158,7 +158,7 @@ export default View.extend({
 
         this.fps.update();
 
-        Matrix.mat4.translate(this.object2.mMatrix, this.object2.mMatrix, [0.0, -0.005, 0.0, 0.0]);
+        Matrix.mat4.translate(this.object2.mMatrix, this.object2.mMatrix, [-0.005, 0.0, 0.0, 0.0]);
 
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);

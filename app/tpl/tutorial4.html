@@ -29,7 +29,7 @@
             tbn = mat3(vTangent, vBinormal, vNormal);
 
             // Get the vertex position in eye coordinates
-            vec4 vertexEyePosition4 = (uMMatrix * uVMatrix) * vec4(aVertexPosition, 1.0);
+            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);
             vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
 
             vUV = aVertexTexture;
