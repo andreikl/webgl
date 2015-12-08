@@ -491,13 +491,10 @@ server.route({
         objectData.triangles = triangles;
 
         objectData.boundingVolume = {
-            type: "box",
-            x1: -1,
-            y1: -1,
-            z1: -1,
-            x2: 1,
-            y2: 1,
-            z2: 1
+            type: "OBB",
+            c: [0, 0, 0],
+            u: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            e: [1, 1, 1]
         }
 
         reply(objectData);
@@ -703,13 +700,10 @@ server.route({
         objectData.triangles = triangles;
 
         objectData.boundingVolume = {
-            type: "box",
-            x1: -1,
-            y1: -1,
-            z1: -1,
-            x2: 1,
-            y2: 1,
-            z2: 1
+            type: "OBB",
+            c: [0, 0, 0],
+            u: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+            e: [1, 1, 1]
         }
 
         reply(objectData);

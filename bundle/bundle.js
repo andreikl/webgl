@@ -39991,6 +39991,7 @@
 	    obj.triangles = trianglesBuffer;
 	    obj.types = data.types;
 	    obj.buffers = data.buffers;
+	    obj.boundingVolume = data.boundingVolume;
 
 	    obj.mMatrix = _glMatrix2["default"].mat4.create();
 	    _glMatrix2["default"].mat4.identity(obj.mMatrix);
@@ -45720,25 +45721,24 @@
 	            _this._setPerspective(_this.canvas._sizeHandler());
 	        }, 10);
 
+	        this.objs = [];
 	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _this.object1 = {};
-	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object1, data);
+	            _this.objs[0] = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.objs[0], data);
 
-	            if (_this.object2) {
-	                _this.isRun = true;
-	                _this._tick();
+	            if (_this.objs[1]) {
+	                _this._run();
 	            }
 	        }, function (error) {
 	            console.log('Error is happend: ', error);
 	        });
 
 	        _utilsUtilsJsx2['default'].ajaxGet('/api/getCube?isNormales=true&isTangents=true&isUVs=true', function (data) {
-	            _this.object2 = {};
-	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.object2, data);
+	            _this.objs[1] = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.objs[1], data);
 
-	            if (_this.object1) {
-	                _this.isRun = true;
-	                _this._tick();
+	            if (_this.objs[0]) {
+	                _this._run();
 	            }
 	        }, function (error) {
 	            console.log('Error is happend: ', error);
@@ -45812,6 +45812,17 @@
 	        };
 	        image.src = url;
 	    },
+	    _run: function _run() {
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var x = Math.random() * 2 - 1;
+	            var y = Math.random() * 2 - 1;
+	            var z = Math.random() * 2 - 1;
+	            this.objs[i].direction = [x, y, z];
+	            this.objs[i].speed = Math.random() * 0.1;
+	        }
+	        this.isRun = true;
+	        this._tick();
+	    },
 	    _tick: function _tick() {
 	        var _this2 = this;
 
@@ -45820,11 +45831,6 @@
 	        }
 
 	        this.fps.update();
-
-	        _glMatrix2['default'].mat4.translate(this.object2.mMatrix, this.object2.mMatrix, [-0.005, 0.0, 0.0, 0.0]);
-
-	        //var angle = clock.getElapsedTime() / 1000;
-	        //rotateViewMatrices(angle);
 
 	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
@@ -45836,8 +45842,25 @@
 	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
-	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object2, false);
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var x = this.objs[i].direction[0] * this.objs[i].speed;
+	            var y = this.objs[i].direction[1] * this.objs[i].speed;
+	            var z = this.objs[i].direction[2] * this.objs[i].speed;
+	            _glMatrix2['default'].mat4.translate(this.objs[i].mMatrix, this.objs[i].mMatrix, [x, y, z]);
+
+	            var res = [0, 0, 0];
+	            console.log(this.objs[i]);
+	            _glMatrix2['default'].mat4.multiplyVec3(this.objs[i].mMatrix, this.objs[i].boundingVolume.c, res);
+	            if (res[0] > 5 || res[0] < -5 || res[1] > 5 || res[1] < -5 || res[2] > 5 || res[2] < -5) {
+	                this.objs[i].direction[0] = -this.objs[i].direction[0];
+	                this.objs[i].direction[1] = -this.objs[i].direction[1];
+	                this.objs[i].direction[2] = -this.objs[i].direction[2];
+	            }
+
+	            _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.objs[i], false);
+	        }
+	        //var angle = clock.getElapsedTime() / 1000;
+	        //rotateViewMatrices(angle);
 
 	        requestAnimFrame(function () {
 	            _this2._tick();

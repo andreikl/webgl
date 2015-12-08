@@ -106,6 +106,7 @@ WebGlApi.setUpObject = function (scene, obj, data) {
     obj.triangles = trianglesBuffer;
     obj.types = data.types;
     obj.buffers = data.buffers;
+    obj.boundingVolume = data.boundingVolume;
 
     obj.mMatrix = Matrix.mat4.create();
     Matrix.mat4.identity(obj.mMatrix);
