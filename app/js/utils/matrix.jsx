@@ -7,6 +7,67 @@
 }
 
 export default {
+    point3: {
+        create (p) {
+            var dest = new glMatrixArrayType(3);
+            if(p) {
+                dest[0] = p[0];
+                dest[1] = p[1];
+                dest[2] = p[2];
+            }
+            return dest;
+        },
+    },
+    vec3: {
+        create (vec) {
+            var dest = new glMatrixArrayType(3);
+            if(vec) {
+                dest[0] = vec[0];
+                dest[1] = vec[1];
+                dest[2] = vec[2];
+            }
+            return dest;
+        },
+        add (vec, vec2, dest) {
+            if (!dest || vec == dest) {
+                vec[0] += vec2[0];
+                vec[1] += vec2[1];
+                vec[2] += vec2[2];
+                return vec;
+            }
+            dest[0] = vec[0] + vec2[0];
+            dest[1] = vec[1] + vec2[1];
+            dest[2] = vec[2] + vec2[2];
+            return dest;
+        },
+        subtract (vec, vec2, dest) {
+            if (!dest || vec == dest) {
+                vec[0] -= vec2[0];
+                vec[1] -= vec2[1];
+                vec[2] -= vec2[2];
+                return vec;
+            }
+            dest[0] = vec[0] - vec2[0];
+            dest[1] = vec[1] - vec2[1];
+            dest[2] = vec[2] - vec2[2];
+            return dest;
+        },
+        scale (vec, val, dest) {
+            if (!dest || vec == dest) {
+                vec[0] *= val;
+                vec[1] *= val;
+                vec[2] *= val;
+                return vec;
+            }
+            dest[0] = vec[0] * val;
+            dest[1] = vec[1] * val;
+            dest[2] = vec[2] * val;
+            return dest;
+        },
+        dot (vec, vec2) {
+            return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
+        }
+    },
     mat4: {
         create (mat) {
             var dest = new glMatrixArrayType(16);
@@ -233,6 +294,19 @@ export default {
             dest[6] = 0;
             dest[7] = 0;
             dest[8] = 1;
+            return dest;
+        },
+        multiplyVec3 (mat, vec, dest) {
+            if (!dest) {
+                dest = vec;
+            }
+
+            var x = vec[0], y = vec[1], z = vec[2];
+            
+            dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+            dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+            dest[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
+            
             return dest;
         }
     }

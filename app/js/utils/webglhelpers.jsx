@@ -1,5 +1,7 @@
 ﻿import Matrix from 'gl-matrix';
 
+import Mtrx from './matrix.jsx';
+
 Matrix.mat4.multiplyVec3 = function (mat, vec, dest) {
     if (!dest) { 
         dest = vec;
@@ -178,6 +180,64 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
         }
         drown += (item.size * 2);
     }
+}
+
+// Given point p, return point q on (or in) OBB b, closest to p
+//void ClosestPtPointOBB(Point p, OBB b, Point &q) {
+//    Vector d = p - b.c;
+//    // Start result at center of box; make steps from there
+//    q = b.c;
+//    // For each OBB axis...
+//    for (int i = 0; i < 3; i++) {
+//        // ...project d onto that axis to get the distance
+//        // along the axis of d from the box center
+//        float dist = Dot(d, b.u[i]);
+//        // If distance farther than the box extents, clamp to the box
+//        if (dist > b.e[i]) dist = b.e[i];
+//        if (dist < -b.e[i]) dist = -b.e[i];
+//        // Step that distance along the axis to get world coordinate
+//        q += dist * b.u[i];
+//    }
+//}
+
+// Computes the square distance between point p and OBB b
+//float SqDistPointOBB(Point p, OBB b) {
+//    Vector v = p - b.c;
+//    float sqDist = 0.0f;
+//    for (int i = 0; i < 3; i++) {
+//        // Project vector from box center to p on each axis, getting the distance
+//        // of p along that axis, and count any excess distance outside box extents
+//        float d = Dot(v, b.u[i]), excess = 0.0f;
+//        if (d < -b.e[i])
+//            excess = d + b.e[i];
+//        else if (d > b.e[i])
+//            excess = d - b.e[i];
+//        sqDist += excess * excess;
+//    }
+//    return sqDist;
+//}
+WebGlApi.calculateDistance = function (obj1, obj2) {
+    var bv1 = obj1.boundingVolume;
+    var bv2 = obj2.boundingVolume;
+    if (bv2.type === 'OBB') {
+        var v = Mtrx.vec3.create(obj1.center);
+        Mtrx.vec3.subtract(v, obj2.center);
+        var sqDist = 0.0;
+        // For each OBB axis...
+        for (var i = 0; i < 3; i++) {
+            // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
+            var dist = Mtrx.vec3.dot(v, bv2.u[i]);
+            var excess = 0.0;
+            if (dist < -bv2.e[i]) {
+                excess = dist + bv2.e[i];
+            } else if (dist > bv2.e[i]) {
+                excess = dist - bv2.e[i];
+            }
+            sqDist += excess * excess;
+        }
+        return sqDist;
+    }
+    return undefined;
 }
 
 WebGlApi.Fps = function (element) {

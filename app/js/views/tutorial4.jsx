@@ -1,8 +1,9 @@
 import View from 'ampersand-view';
+import Matrix from 'gl-matrix';
 
 import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
-import Matrix from 'gl-matrix';
+import Mtrx from './../utils/matrix.jsx';
 
 import tutorial4Html from './../../tpl/tutorial4.html';
 
@@ -55,6 +56,9 @@ export default View.extend({
         this.fps = new WebGlApi.Fps(this.queryByHook('fps'));
         this.control = new WebGlApi.OrbitControl(this.canvas.el, 3);
         this.shaderProgram = this._initShaders(WebGlApi.gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+        this.elobj1 = this.queryByHook('obj1');
+        this.elobj2 = this.queryByHook('obj2');
 
         setTimeout(() => {
             this._setPerspective(this.canvas._sizeHandler());
@@ -153,12 +157,14 @@ export default View.extend({
         image.src = url;
     },
     _run () {
+        console.log(this.objs.length);
         for (var i = 0; i < this.objs.length; i++) {
             var x = Math.random() * 2 - 1;
             var y = Math.random() * 2 - 1;
             var z = Math.random() * 2 - 1;
             this.objs[i].direction = [x, y, z];
             this.objs[i].speed = Math.random() * 0.1;
+            this.objs[i].center = Mtrx.mat4.create();
         }
         this.isRun = true;
         this._tick();
@@ -179,21 +185,45 @@ export default View.extend({
         WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
         for (var i = 0; i < this.objs.length; i++) {
-            var x = this.objs[i].direction[0] * this.objs[i].speed;
-            var y = this.objs[i].direction[1] * this.objs[i].speed;
-            var z = this.objs[i].direction[2] * this.objs[i].speed;
-            Matrix.mat4.translate(this.objs[i].mMatrix, this.objs[i].mMatrix, [x, y, z]);
+            var obj = this.objs[i];
 
-            var res = [0, 0, 0];
-            console.log(this.objs[i]);
-            Matrix.mat4.multiplyVec3(this.objs[i].mMatrix, this.objs[i].boundingVolume.c, res);
-            if(res[0] > 5 || res[0] < -5 || res[1] > 5 || res[1] < -5 || res[2] > 5 || res[2] < -5) {
-                this.objs[i].direction[0] = -this.objs[i].direction[0];
-                this.objs[i].direction[1] = -this.objs[i].direction[1];
-                this.objs[i].direction[2] = -this.objs[i].direction[2];
+            var x = obj.direction[0] * obj.speed;
+            var y = obj.direction[1] * obj.speed;
+            var z = obj.direction[2] * obj.speed;
+            Matrix.mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
+
+            Matrix.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+            if(obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
+                obj.direction[0] = -obj.direction[0];
+                obj.direction[1] = -obj.direction[1];
+                obj.direction[2] = -obj.direction[2];
             }
 
-            WebGlApi.drawFrame(this.shaderProgram, this.objs[i], false);
+            //var res = [0, 0, 0];
+            //Matrix.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, res);
+            //if(res[0] > 5 || res[0] < -5 || res[1] > 5 || res[1] < -5 || res[2] > 5 || res[2] < -5) {
+            //    obj.direction[0] = -obj.direction[0];
+            //    obj.direction[1] = -obj.direction[1];
+            //    obj.direction[2] = -obj.direction[2];
+            //}
+        }
+
+        for (var i = 0; i < this.objs.length; i++) {
+            var obj = this.objs[i];
+            for (var j = 0; j < this.objs.length; j++) {
+                if (j !== i) {
+                    var objto = this.objs[j];
+                    var distance = WebGlApi.calculateDistance(obj, objto);
+
+                    if (j === 0) {
+                        this.elobj1.innerHTML = distance;
+                    } else if (j === 1) {
+                        this.elobj2.innerHTML = distance;
+                    }
+                }
+            }
+
+            WebGlApi.drawFrame(this.shaderProgram, obj, false);
         }
         //var angle = clock.getElapsedTime() / 1000;
         //rotateViewMatrices(angle);

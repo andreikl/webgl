@@ -39743,11 +39743,11 @@
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
 
-	var _utilsUtilsJsx = __webpack_require__(375);
+	var _utilsUtilsJsx = __webpack_require__(365);
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(365);
+	var _glMatrix = __webpack_require__(366);
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
@@ -39879,15 +39879,19 @@
 /* 364 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _glMatrix = __webpack_require__(365);
+	var _glMatrix = __webpack_require__(366);
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
-	_glMatrix2["default"].mat4.multiplyVec3 = function (mat, vec, dest) {
+	var _matrixJsx = __webpack_require__(389);
+
+	var _matrixJsx2 = _interopRequireDefault(_matrixJsx);
+
+	_glMatrix2['default'].mat4.multiplyVec3 = function (mat, vec, dest) {
 	    if (!dest) {
 	        dest = vec;
 	    }
@@ -39929,14 +39933,14 @@
 	    WebGlApi.viewportWidth = canvas.width;
 	    WebGlApi.viewportHeight = canvas.height;
 
-	    WebGlApi.pMatrix = _glMatrix2["default"].mat4.create();
-	    _glMatrix2["default"].mat4.identity(WebGlApi.pMatrix);
+	    WebGlApi.pMatrix = _glMatrix2['default'].mat4.create();
+	    _glMatrix2['default'].mat4.identity(WebGlApi.pMatrix);
 
-	    WebGlApi.vMatrix = _glMatrix2["default"].mat4.create();
-	    _glMatrix2["default"].mat4.identity(WebGlApi.vMatrix);
+	    WebGlApi.vMatrix = _glMatrix2['default'].mat4.create();
+	    _glMatrix2['default'].mat4.identity(WebGlApi.vMatrix);
 
-	    WebGlApi.nMatrix = _glMatrix2["default"].mat3.create();
-	    _glMatrix2["default"].mat3.identity(WebGlApi.nMatrix);
+	    WebGlApi.nMatrix = _glMatrix2['default'].mat3.create();
+	    _glMatrix2['default'].mat3.identity(WebGlApi.nMatrix);
 
 	    WebGlApi.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	    WebGlApi.gl.enable(WebGlApi.gl.DEPTH_TEST);
@@ -39993,8 +39997,8 @@
 	    obj.buffers = data.buffers;
 	    obj.boundingVolume = data.boundingVolume;
 
-	    obj.mMatrix = _glMatrix2["default"].mat4.create();
-	    _glMatrix2["default"].mat4.identity(obj.mMatrix);
+	    obj.mMatrix = _glMatrix2['default'].mat4.create();
+	    _glMatrix2['default'].mat4.identity(obj.mMatrix);
 
 	    obj.stride = 0;
 	    for (var i = 0; i < data.types.length; i++) {
@@ -40065,6 +40069,64 @@
 	    }
 	};
 
+	// Given point p, return point q on (or in) OBB b, closest to p
+	//void ClosestPtPointOBB(Point p, OBB b, Point &q) {
+	//    Vector d = p - b.c;
+	//    // Start result at center of box; make steps from there
+	//    q = b.c;
+	//    // For each OBB axis...
+	//    for (int i = 0; i < 3; i++) {
+	//        // ...project d onto that axis to get the distance
+	//        // along the axis of d from the box center
+	//        float dist = Dot(d, b.u[i]);
+	//        // If distance farther than the box extents, clamp to the box
+	//        if (dist > b.e[i]) dist = b.e[i];
+	//        if (dist < -b.e[i]) dist = -b.e[i];
+	//        // Step that distance along the axis to get world coordinate
+	//        q += dist * b.u[i];
+	//    }
+	//}
+
+	// Computes the square distance between point p and OBB b
+	//float SqDistPointOBB(Point p, OBB b) {
+	//    Vector v = p - b.c;
+	//    float sqDist = 0.0f;
+	//    for (int i = 0; i < 3; i++) {
+	//        // Project vector from box center to p on each axis, getting the distance
+	//        // of p along that axis, and count any excess distance outside box extents
+	//        float d = Dot(v, b.u[i]), excess = 0.0f;
+	//        if (d < -b.e[i])
+	//            excess = d + b.e[i];
+	//        else if (d > b.e[i])
+	//            excess = d - b.e[i];
+	//        sqDist += excess * excess;
+	//    }
+	//    return sqDist;
+	//}
+	WebGlApi.calculateDistance = function (obj1, obj2) {
+	    var bv1 = obj1.boundingVolume;
+	    var bv2 = obj2.boundingVolume;
+	    if (bv2.type === 'OBB') {
+	        var v = _matrixJsx2['default'].vec3.create(obj1.center);
+	        _matrixJsx2['default'].vec3.subtract(v, obj2.center);
+	        var sqDist = 0.0;
+	        // For each OBB axis...
+	        for (var i = 0; i < 3; i++) {
+	            // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
+	            var dist = _matrixJsx2['default'].vec3.dot(v, bv2.u[i]);
+	            var excess = 0.0;
+	            if (dist < -bv2.e[i]) {
+	                excess = dist + bv2.e[i];
+	            } else if (dist > bv2.e[i]) {
+	                excess = dist - bv2.e[i];
+	            }
+	            sqDist += excess * excess;
+	        }
+	        return sqDist;
+	    }
+	    return undefined;
+	};
+
 	WebGlApi.Fps = function (element) {
 	    this.element = element;
 
@@ -40125,14 +40187,14 @@
 	        var z = calcRadius * Math.cos(this.rotateAngleX) * Math.cos(this.rotateAngleY);
 	        if (this.rotateAngleY < Math.PI / 2 && this.rotateAngleY > -Math.PI / 2) {
 	            //Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, 1, 0], WebGlApi.vMatrix);
-	            _glMatrix2["default"].mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
+	            _glMatrix2['default'].mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, 1, 0]);
 	        } else {
 	            //Matrix.mat4.lookAt([x, y, z], [0, 0, 0], [0, -1, 0], WebGlApi.vMatrix);
-	            _glMatrix2["default"].mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, -1, 0]);
+	            _glMatrix2['default'].mat4.lookAt(WebGlApi.vMatrix, [x, y, z], [0, 0, 0], [0, -1, 0]);
 	        }
 
 	        //Matrix.mat4.toInverseMat3(WebGlApi.vMatrix, WebGlApi.nMatrix);
-	        _glMatrix2["default"].mat3.normalFromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
+	        _glMatrix2['default'].mat3.normalFromMat4(WebGlApi.nMatrix, WebGlApi.vMatrix);
 	    };
 	    this.zoom = function (delta) {
 	        if (delta > 0) {
@@ -40264,6 +40326,59 @@
 
 /***/ },
 /* 365 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	exports['default'] = {
+	    ajaxGet: function ajaxGet(url, s, f) {
+	        var r = new XMLHttpRequest();
+	        r.open("GET", url, true);
+	        r.onreadystatechange = function () {
+	            if (r.readyState != 4 || r.status != 200) {
+	                return;
+	            }
+	            var data = JSON.parse(r.responseText);
+	            s(data);
+	        };
+	        r.onerror = function (error) {
+	            if (f) {
+	                f(error);
+	            }
+	        };
+	        r.send();
+	    },
+
+	    addClass: function addClass(el, className) {
+	        if (el.classList) {
+	            el.classList.add(className);
+	        } else {
+	            el.className += ' ' + className;
+	        }
+	    },
+
+	    toggleClass: function toggleClass(el, className) {
+	        if (el.classList) {
+	            el.classList.toggle(className);
+	        } else {
+	            var classes = el.className.split(' ');
+	            var existingIndex = classes.indexOf(className);
+	            if (existingIndex >= 0) {
+	                classes.splice(existingIndex, 1);
+	            } else {
+	                classes.push(className);
+	            }
+	            el.className = classes.join(' ');
+	        }
+	    }
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -40294,18 +40409,18 @@
 	THE SOFTWARE. */
 	// END HEADER
 
-	exports.glMatrix = __webpack_require__(366);
-	exports.mat2 = __webpack_require__(367);
-	exports.mat2d = __webpack_require__(368);
-	exports.mat3 = __webpack_require__(369);
-	exports.mat4 = __webpack_require__(370);
-	exports.quat = __webpack_require__(371);
-	exports.vec2 = __webpack_require__(374);
-	exports.vec3 = __webpack_require__(372);
-	exports.vec4 = __webpack_require__(373);
+	exports.glMatrix = __webpack_require__(367);
+	exports.mat2 = __webpack_require__(368);
+	exports.mat2d = __webpack_require__(369);
+	exports.mat3 = __webpack_require__(370);
+	exports.mat4 = __webpack_require__(371);
+	exports.quat = __webpack_require__(372);
+	exports.vec2 = __webpack_require__(375);
+	exports.vec3 = __webpack_require__(373);
+	exports.vec4 = __webpack_require__(374);
 
 /***/ },
-/* 366 */
+/* 367 */
 /***/ function(module, exports) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -40363,7 +40478,7 @@
 
 
 /***/ },
-/* 367 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -40386,7 +40501,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 2x2 Matrix
@@ -40671,7 +40786,7 @@
 
 
 /***/ },
-/* 368 */
+/* 369 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -40694,7 +40809,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 2x3 Matrix
@@ -40994,7 +41109,7 @@
 
 
 /***/ },
-/* 369 */
+/* 370 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -41017,7 +41132,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 3x3 Matrix
@@ -41565,7 +41680,7 @@
 
 
 /***/ },
-/* 370 */
+/* 371 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -41588,7 +41703,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 4x4 Matrix
@@ -42854,7 +42969,7 @@
 
 
 /***/ },
-/* 371 */
+/* 372 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -42877,10 +42992,10 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
-	var mat3 = __webpack_require__(369);
-	var vec3 = __webpack_require__(372);
-	var vec4 = __webpack_require__(373);
+	var glMatrix = __webpack_require__(367);
+	var mat3 = __webpack_require__(370);
+	var vec3 = __webpack_require__(373);
+	var vec4 = __webpack_require__(374);
 
 	/**
 	 * @class Quaternion
@@ -43413,7 +43528,7 @@
 
 
 /***/ },
-/* 372 */
+/* 373 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -43436,7 +43551,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 3 Dimensional Vector
@@ -44128,7 +44243,7 @@
 
 
 /***/ },
-/* 373 */
+/* 374 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -44151,7 +44266,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 4 Dimensional Vector
@@ -44671,7 +44786,7 @@
 
 
 /***/ },
-/* 374 */
+/* 375 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
@@ -44694,7 +44809,7 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE. */
 
-	var glMatrix = __webpack_require__(366);
+	var glMatrix = __webpack_require__(367);
 
 	/**
 	 * @class 2 Dimensional Vector
@@ -45200,59 +45315,6 @@
 
 
 /***/ },
-/* 375 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	exports['default'] = {
-	    ajaxGet: function ajaxGet(url, s, f) {
-	        var r = new XMLHttpRequest();
-	        r.open("GET", url, true);
-	        r.onreadystatechange = function () {
-	            if (r.readyState != 4 || r.status != 200) {
-	                return;
-	            }
-	            var data = JSON.parse(r.responseText);
-	            s(data);
-	        };
-	        r.onerror = function (error) {
-	            if (f) {
-	                f(error);
-	            }
-	        };
-	        r.send();
-	    },
-
-	    addClass: function addClass(el, className) {
-	        if (el.classList) {
-	            el.classList.add(className);
-	        } else {
-	            el.className += ' ' + className;
-	        }
-	    },
-
-	    toggleClass: function toggleClass(el, className) {
-	        if (el.classList) {
-	            el.classList.toggle(className);
-	        } else {
-	            var classes = el.className.split(' ');
-	            var existingIndex = classes.indexOf(className);
-	            if (existingIndex >= 0) {
-	                classes.splice(existingIndex, 1);
-	            } else {
-	                classes.push(className);
-	            }
-	            el.className = classes.join(' ');
-	        }
-	    }
-	};
-	module.exports = exports['default'];
-
-/***/ },
 /* 376 */
 /***/ function(module, exports) {
 
@@ -45278,11 +45340,11 @@
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
 
-	var _utilsUtilsJsx = __webpack_require__(375);
+	var _utilsUtilsJsx = __webpack_require__(365);
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(365);
+	var _glMatrix = __webpack_require__(366);
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
@@ -45451,11 +45513,11 @@
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
 
-	var _utilsUtilsJsx = __webpack_require__(375);
+	var _utilsUtilsJsx = __webpack_require__(365);
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(365);
+	var _glMatrix = __webpack_require__(366);
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
@@ -45649,17 +45711,21 @@
 
 	var _ampersandView2 = _interopRequireDefault(_ampersandView);
 
+	var _glMatrix = __webpack_require__(366);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
 	var _utilsWebglhelpersJsx = __webpack_require__(364);
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
 
-	var _utilsUtilsJsx = __webpack_require__(375);
+	var _utilsUtilsJsx = __webpack_require__(365);
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(365);
+	var _utilsMatrixJsx = __webpack_require__(389);
 
-	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+	var _utilsMatrixJsx2 = _interopRequireDefault(_utilsMatrixJsx);
 
 	var _tplTutorial4Html = __webpack_require__(382);
 
@@ -45716,6 +45782,9 @@
 	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
 	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
 	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+	        this.elobj1 = this.queryByHook('obj1');
+	        this.elobj2 = this.queryByHook('obj2');
 
 	        setTimeout(function () {
 	            _this._setPerspective(_this.canvas._sizeHandler());
@@ -45813,12 +45882,14 @@
 	        image.src = url;
 	    },
 	    _run: function _run() {
+	        console.log(this.objs.length);
 	        for (var i = 0; i < this.objs.length; i++) {
 	            var x = Math.random() * 2 - 1;
 	            var y = Math.random() * 2 - 1;
 	            var z = Math.random() * 2 - 1;
 	            this.objs[i].direction = [x, y, z];
 	            this.objs[i].speed = Math.random() * 0.1;
+	            this.objs[i].center = _utilsMatrixJsx2['default'].mat4.create();
 	        }
 	        this.isRun = true;
 	        this._tick();
@@ -45843,21 +45914,45 @@
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
 	        for (var i = 0; i < this.objs.length; i++) {
-	            var x = this.objs[i].direction[0] * this.objs[i].speed;
-	            var y = this.objs[i].direction[1] * this.objs[i].speed;
-	            var z = this.objs[i].direction[2] * this.objs[i].speed;
-	            _glMatrix2['default'].mat4.translate(this.objs[i].mMatrix, this.objs[i].mMatrix, [x, y, z]);
+	            var obj = this.objs[i];
 
-	            var res = [0, 0, 0];
-	            console.log(this.objs[i]);
-	            _glMatrix2['default'].mat4.multiplyVec3(this.objs[i].mMatrix, this.objs[i].boundingVolume.c, res);
-	            if (res[0] > 5 || res[0] < -5 || res[1] > 5 || res[1] < -5 || res[2] > 5 || res[2] < -5) {
-	                this.objs[i].direction[0] = -this.objs[i].direction[0];
-	                this.objs[i].direction[1] = -this.objs[i].direction[1];
-	                this.objs[i].direction[2] = -this.objs[i].direction[2];
+	            var x = obj.direction[0] * obj.speed;
+	            var y = obj.direction[1] * obj.speed;
+	            var z = obj.direction[2] * obj.speed;
+	            _glMatrix2['default'].mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
+
+	            _glMatrix2['default'].mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+	            if (obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
+	                obj.direction[0] = -obj.direction[0];
+	                obj.direction[1] = -obj.direction[1];
+	                obj.direction[2] = -obj.direction[2];
 	            }
 
-	            _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.objs[i], false);
+	            //var res = [0, 0, 0];
+	            //Matrix.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, res);
+	            //if(res[0] > 5 || res[0] < -5 || res[1] > 5 || res[1] < -5 || res[2] > 5 || res[2] < -5) {
+	            //    obj.direction[0] = -obj.direction[0];
+	            //    obj.direction[1] = -obj.direction[1];
+	            //    obj.direction[2] = -obj.direction[2];
+	            //}
+	        }
+
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var obj = this.objs[i];
+	            for (var j = 0; j < this.objs.length; j++) {
+	                if (j !== i) {
+	                    var objto = this.objs[j];
+	                    var distance = _utilsWebglhelpersJsx2['default'].calculateDistance(obj, objto);
+
+	                    if (j === 0) {
+	                        this.elobj1.innerHTML = distance;
+	                    } else if (j === 1) {
+	                        this.elobj2.innerHTML = distance;
+	                    }
+	                }
+	            }
+
+	            _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, obj, false);
 	        }
 	        //var angle = clock.getElapsedTime() / 1000;
 	        //rotateViewMatrices(angle);
@@ -45873,7 +45968,7 @@
 /* 382 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uPMatrix;\r\n        uniform mat4 uVMatrix;\r\n        uniform mat4 uMMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <div data-hook=\"obj1\">---</div>\r\n    <div data-hook=\"obj2\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uPMatrix;\r\n        uniform mat4 uVMatrix;\r\n        uniform mat4 uMMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
 
 /***/ },
 /* 383 */
@@ -46228,6 +46323,348 @@
 			URL.revokeObjectURL(oldSrc);
 	}
 
+
+/***/ },
+/* 389 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	if (typeof Float32Array != 'undefined') {
+	    window.glMatrixArrayType = Float32Array;
+	} else if (typeof WebGLFloatArray != 'undefined') {
+	    window.glMatrixArrayType = WebGLFloatArray;
+	} else {
+	    window.glMatrixArrayType = Array;
+	}
+
+	exports['default'] = {
+	    point3: {
+	        create: function create(p) {
+	            var dest = new glMatrixArrayType(3);
+	            if (p) {
+	                dest[0] = p[0];
+	                dest[1] = p[1];
+	                dest[2] = p[2];
+	            }
+	            return dest;
+	        }
+	    },
+	    vec3: {
+	        create: function create(vec) {
+	            var dest = new glMatrixArrayType(3);
+	            if (vec) {
+	                dest[0] = vec[0];
+	                dest[1] = vec[1];
+	                dest[2] = vec[2];
+	            }
+	            return dest;
+	        },
+	        add: function add(vec, vec2, dest) {
+	            if (!dest || vec == dest) {
+	                vec[0] += vec2[0];
+	                vec[1] += vec2[1];
+	                vec[2] += vec2[2];
+	                return vec;
+	            }
+	            dest[0] = vec[0] + vec2[0];
+	            dest[1] = vec[1] + vec2[1];
+	            dest[2] = vec[2] + vec2[2];
+	            return dest;
+	        },
+	        subtract: function subtract(vec, vec2, dest) {
+	            if (!dest || vec == dest) {
+	                vec[0] -= vec2[0];
+	                vec[1] -= vec2[1];
+	                vec[2] -= vec2[2];
+	                return vec;
+	            }
+	            dest[0] = vec[0] - vec2[0];
+	            dest[1] = vec[1] - vec2[1];
+	            dest[2] = vec[2] - vec2[2];
+	            return dest;
+	        },
+	        scale: function scale(vec, val, dest) {
+	            if (!dest || vec == dest) {
+	                vec[0] *= val;
+	                vec[1] *= val;
+	                vec[2] *= val;
+	                return vec;
+	            }
+	            dest[0] = vec[0] * val;
+	            dest[1] = vec[1] * val;
+	            dest[2] = vec[2] * val;
+	            return dest;
+	        },
+	        dot: function dot(vec, vec2) {
+	            return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
+	        }
+	    },
+	    mat4: {
+	        create: function create(mat) {
+	            var dest = new glMatrixArrayType(16);
+	            if (mat) {
+	                dest[0] = mat[0];
+	                dest[1] = mat[1];
+	                dest[2] = mat[2];
+	                dest[3] = mat[3];
+	                dest[4] = mat[4];
+	                dest[5] = mat[5];
+	                dest[6] = mat[6];
+	                dest[7] = mat[7];
+	                dest[8] = mat[8];
+	                dest[9] = mat[9];
+	                dest[10] = mat[10];
+	                dest[11] = mat[11];
+	                dest[12] = mat[12];
+	                dest[13] = mat[13];
+	                dest[14] = mat[14];
+	                dest[15] = mat[15];
+	            }
+	            return dest;
+	        },
+
+	        identity: function identity(dest) {
+	            dest[0] = 1;
+	            dest[1] = 0;
+	            dest[2] = 0;
+	            dest[3] = 0;
+	            dest[4] = 0;
+	            dest[5] = 1;
+	            dest[6] = 0;
+	            dest[7] = 0;
+	            dest[8] = 0;
+	            dest[9] = 0;
+	            dest[10] = 1;
+	            dest[11] = 0;
+	            dest[12] = 0;
+	            dest[13] = 0;
+	            dest[14] = 0;
+	            dest[15] = 1;
+	            return dest;
+	        },
+
+	        multiplyVec3: function multiplyVec3(mat, vec, dest) {
+	            if (!dest) {
+	                dest = vec;
+	            }
+
+	            var x = vec[0],
+	                y = vec[1],
+	                z = vec[2];
+
+	            dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+	            dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+	            dest[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
+
+	            return dest;
+	        },
+
+	        toInverseMat3: function toInverseMat3(mat, dest) {
+	            // Cache the matrix values (makes for huge speed increases!)
+	            var a00 = mat[0],
+	                a01 = mat[1],
+	                a02 = mat[2];
+	            var a10 = mat[4],
+	                a11 = mat[5],
+	                a12 = mat[6];
+	            var a20 = mat[8],
+	                a21 = mat[9],
+	                a22 = mat[10];
+
+	            var b01 = a22 * a11 - a12 * a21;
+	            var b11 = -a22 * a10 + a12 * a20;
+	            var b21 = a21 * a10 - a11 * a20;
+
+	            var d = a00 * b01 + a01 * b11 + a02 * b21;
+	            if (!d) {
+	                return null;
+	            }
+	            var id = 1 / d;
+
+	            if (!dest) {
+	                dest = mat3.create();
+	            }
+
+	            dest[0] = b01 * id;
+	            dest[1] = (-a22 * a01 + a02 * a21) * id;
+	            dest[2] = (a12 * a01 - a02 * a11) * id;
+	            dest[3] = b11 * id;
+	            dest[4] = (a22 * a00 - a02 * a20) * id;
+	            dest[5] = (-a12 * a00 + a02 * a10) * id;
+	            dest[6] = b21 * id;
+	            dest[7] = (-a21 * a00 + a01 * a20) * id;
+	            dest[8] = (a11 * a00 - a01 * a10) * id;
+
+	            return dest;
+	        },
+
+	        frustum: function frustum(left, right, bottom, top, near, far, dest) {
+	            if (!dest) {
+	                dest = mat4.create();
+	            }
+	            var rl = right - left;
+	            var tb = top - bottom;
+	            var fn = far - near;
+	            dest[0] = near * 2 / rl;
+	            dest[1] = 0;
+	            dest[2] = 0;
+	            dest[3] = 0;
+	            dest[4] = 0;
+	            dest[5] = near * 2 / tb;
+	            dest[6] = 0;
+	            dest[7] = 0;
+	            dest[8] = (right + left) / rl;
+	            dest[9] = (top + bottom) / tb;
+	            dest[10] = -(far + near) / fn;
+	            dest[11] = -1;
+	            dest[12] = 0;
+	            dest[13] = 0;
+	            dest[14] = -(far * near * 2) / fn;
+	            dest[15] = 0;
+	            return dest;
+	        },
+
+	        lookAt: function lookAt(eye, center, up, dest) {
+	            if (!dest) {
+	                dest = mat4.create();
+	            }
+
+	            var eyex = eye[0],
+	                eyey = eye[1],
+	                eyez = eye[2],
+	                upx = up[0],
+	                upy = up[1],
+	                upz = up[2],
+	                centerx = center[0],
+	                centery = center[1],
+	                centerz = center[2];
+
+	            if (eyex == centerx && eyey == centery && eyez == centerz) {
+	                return mat4.identity(dest);
+	            }
+
+	            var z0, z1, z2, x0, x1, x2, y0, y1, y2, len;
+
+	            //vec3.direction(eye, center, z);
+	            z0 = eyex - center[0];
+	            z1 = eyey - center[1];
+	            z2 = eyez - center[2];
+
+	            // normalize (no check needed for 0 because of early return)
+	            len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+	            z0 *= len;
+	            z1 *= len;
+	            z2 *= len;
+
+	            //vec3.normalize(vec3.cross(up, z, x));
+	            x0 = upy * z2 - upz * z1;
+	            x1 = upz * z0 - upx * z2;
+	            x2 = upx * z1 - upy * z0;
+	            len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+	            if (!len) {
+	                x0 = 0;
+	                x1 = 0;
+	                x2 = 0;
+	            } else {
+	                len = 1 / len;
+	                x0 *= len;
+	                x1 *= len;
+	                x2 *= len;
+	            };
+
+	            //vec3.normalize(vec3.cross(z, x, y));
+	            y0 = z1 * x2 - z2 * x1;
+	            y1 = z2 * x0 - z0 * x2;
+	            y2 = z0 * x1 - z1 * x0;
+
+	            len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+	            if (!len) {
+	                y0 = 0;
+	                y1 = 0;
+	                y2 = 0;
+	            } else {
+	                len = 1 / len;
+	                y0 *= len;
+	                y1 *= len;
+	                y2 *= len;
+	            }
+
+	            dest[0] = x0;
+	            dest[1] = y0;
+	            dest[2] = z0;
+	            dest[3] = 0;
+	            dest[4] = x1;
+	            dest[5] = y1;
+	            dest[6] = z1;
+	            dest[7] = 0;
+	            dest[8] = x2;
+	            dest[9] = y2;
+	            dest[10] = z2;
+	            dest[11] = 0;
+	            dest[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+	            dest[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+	            dest[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+	            dest[15] = 1;
+
+	            return dest;
+	        },
+
+	        perspective: function perspective(fovy, aspect, near, far, dest) {
+	            var top = near * Math.tan(fovy * Math.PI / 360.0);
+	            var right = top * aspect;
+	            return this.frustum(-right, right, -top, top, near, far, dest);
+	        }
+	    },
+	    mat3: {
+	        create: function create(mat) {
+	            var dest = new glMatrixArrayType(9);
+	            if (mat) {
+	                dest[0] = mat[0];
+	                dest[1] = mat[1];
+	                dest[2] = mat[2];
+	                dest[3] = mat[3];
+	                dest[4] = mat[4];
+	                dest[5] = mat[5];
+	                dest[6] = mat[6];
+	                dest[7] = mat[7];
+	                dest[8] = mat[8];
+	            }
+	            return dest;
+	        },
+	        identity: function identity(dest) {
+	            dest[0] = 1;
+	            dest[1] = 0;
+	            dest[2] = 0;
+	            dest[3] = 0;
+	            dest[4] = 1;
+	            dest[5] = 0;
+	            dest[6] = 0;
+	            dest[7] = 0;
+	            dest[8] = 1;
+	            return dest;
+	        },
+	        multiplyVec3: function multiplyVec3(mat, vec, dest) {
+	            if (!dest) {
+	                dest = vec;
+	            }
+
+	            var x = vec[0],
+	                y = vec[1],
+	                z = vec[2];
+
+	            dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+	            dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+	            dest[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
+
+	            return dest;
+	        }
+	    }
+	};
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);
