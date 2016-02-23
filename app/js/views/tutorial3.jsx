@@ -1,8 +1,11 @@
 import View from 'ampersand-view';
+import Matrix from 'gl-matrix';
 
 import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
-import Matrix from 'gl-matrix';
+import Mtrx from './../utils/matrix.jsx';
+
+
 
 import tutorial3Html from './../../tpl/tutorial3.html';
 
@@ -153,7 +156,7 @@ export default View.extend({
         WebGlApi.gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
         var lightPos = [0.0, 0.0, 3.0]
-        Matrix.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
+        Mtrx.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
         WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
         WebGlApi.drawFrame(this.shaderProgram, this.object1, false);

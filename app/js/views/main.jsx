@@ -5,6 +5,7 @@ import Tutorial1Page from './tutorial1.jsx';
 import Tutorial2Page from './tutorial2.jsx';
 import Tutorial3Page from './tutorial3.jsx';
 import Tutorial4Page from './tutorial4.jsx';
+import Tutorial5Page from './tutorial5.jsx';
 import HomePage from './home.jsx';
 
 export default View.extend({
@@ -58,6 +59,13 @@ export default View.extend({
                     this.tutorial4 = new Tutorial4Page({main: this});
                 }
                 this.pages.set(this.tutorial4);
+                break;
+
+            case 'tutorial5':
+                if (!this.tutorial5) {
+                    this.tutorial5 = new Tutorial5Page({main: this});
+                }
+                this.pages.set(this.tutorial5);
                 break;
 
             default:

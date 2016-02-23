@@ -30,7 +30,7 @@ var Canvas = View.extend({
 
 export default View.extend({
     template: tutorial4Html,
-    pageTitle: 'Tutorial 4!',
+    pageTitle: 'Tutorial 4! Distance between OBB',
     props: {
         main: 'state',
         canvas: 'state'
@@ -174,14 +174,13 @@ export default View.extend({
 
         this.fps.update();
 
-        WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
         WebGlApi.gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
         WebGlApi.gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
         WebGlApi.gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
         WebGlApi.gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
         var lightPos = [0.0, 0.0, 3.0]
-        Matrix.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
+        Mtrx.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
         WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
         for (var i = 0; i < this.objs.length; i++) {
@@ -192,7 +191,7 @@ export default View.extend({
             var z = obj.direction[2] * obj.speed;
             Matrix.mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
 
-            Matrix.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+            Mtrx.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
             if(obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
                 obj.direction[0] = -obj.direction[0];
                 obj.direction[1] = -obj.direction[1];

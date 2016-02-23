@@ -5,7 +5,7 @@ import WebGlApi from './../utils/webglhelpers.jsx';
 import Utils from './../utils/utils.jsx';
 import Mtrx from './../utils/matrix.jsx';
 
-import tutorial2Html from './../../tpl/tutorial2.html';
+import htmlTemplate from './../../tpl/tutorial5.html';
 
 var Canvas = View.extend({
     props: {
@@ -29,8 +29,8 @@ var Canvas = View.extend({
 });
 
 export default View.extend({
-    template: tutorial2Html,
-    pageTitle: 'Tutorial 2!',
+    template: htmlTemplate,
+    pageTitle: 'Tutorial 5 Intersection of bounding AABB volumes!',
     props: {
         main: 'state',
         canvas: 'state'
@@ -57,16 +57,32 @@ export default View.extend({
         this.control = new WebGlApi.OrbitControl(this.canvas.el, 3);
         this.shaderProgram = this._initShaders(WebGlApi.gl, this.query('#shader-fs'), this.query('#shader-vs'));
 
+        this.elobj1 = this.queryByHook('obj1');
+        this.elobj2 = this.queryByHook('obj2');
+
         setTimeout(() => {
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
+        this.objs = [];
         Utils.ajaxGet('/api/getSphere', (data) => {
-            this.object1 = {};
-            WebGlApi.setUpObject(this, this.object1, data);
+            this.objs[0] = {};
+            WebGlApi.setUpObject(this, this.objs[0], data);
 
-            this.isRun = true;
-            this._tick();
+            if (this.objs[1]) {
+                this._run();
+            }
+        }, function (error) {
+            console.log('Error is happend: ', error);
+        });
+
+        Utils.ajaxGet('/api/getCube', (data) => {
+            this.objs[1] = {};
+            WebGlApi.setUpObject(this, this.objs[1], data);
+
+            if (this.objs[0]) {
+                this._run();
+            }
         }, function (error) {
             console.log('Error is happend: ', error);
         });
@@ -109,25 +125,85 @@ export default View.extend({
         shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
         shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
         return shaderProgram;
+
+    },
+    _initTexture (url, texture) {
+        var image = new Image();
+        image.onload = function () {
+            WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, texture);
+  
+            WebGlApi.gl.texImage2D(WebGlApi.gl.TEXTURE_2D, 0, WebGlApi.gl.RGBA, WebGlApi.gl.RGBA, WebGlApi.gl.UNSIGNED_BYTE, image);
+                
+            WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_MAG_FILTER, WebGlApi.gl.LINEAR);
+            WebGlApi.gl.texParameteri(WebGlApi.gl.TEXTURE_2D, WebGlApi.gl.TEXTURE_MIN_FILTER, WebGlApi.gl.LINEAR);
+            WebGlApi.gl.generateMipmap(WebGlApi.gl.TEXTURE_2D);
+  
+            WebGlApi.gl.bindTexture(WebGlApi.gl.TEXTURE_2D, null); 
+        }
+        image.src = url;
+    },
+    _run () {
+        for (var i = 0; i < this.objs.length; i++) {
+            var x = Math.random() * 2 - 1;
+            var y = Math.random() * 2 - 1;
+            var z = Math.random() * 2 - 1;
+            this.objs[i].direction = [x, y, z];
+            this.objs[i].speed = Math.random() * 0.1;
+            this.objs[i].center = Mtrx.mat4.create();
+        }
+        this.isRun = true;
+        this._tick();
     },
     _tick () {
         if (this.isRun !== true) { return; }
 
         this.fps.update();
-        //var angle = clock.getElapsedTime() / 1000;
-        //rotateViewMatrices(angle);
 
         WebGlApi.gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
         WebGlApi.gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
-        WebGlApi.gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.2, 0.2, 0.2);
-        WebGlApi.gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.7, 0.7, 0.7);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
+        WebGlApi.gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
         WebGlApi.gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
         var lightPos = [0.0, 0.0, 3.0]
         Mtrx.mat4.multiplyVec3(WebGlApi.vMatrix, lightPos);
         WebGlApi.gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
-        WebGlApi.drawFrame(this.shaderProgram, this.object1, false);
+        for (var i = 0; i < this.objs.length; i++) {
+            var obj = this.objs[i];
+
+            var x = obj.direction[0] * obj.speed;
+            var y = obj.direction[1] * obj.speed;
+            var z = obj.direction[2] * obj.speed;
+            Matrix.mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
+
+            Mtrx.mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+            if(obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
+                obj.direction[0] = -obj.direction[0];
+                obj.direction[1] = -obj.direction[1];
+                obj.direction[2] = -obj.direction[2];
+            }
+        }
+
+        for (var i = 0; i < this.objs.length; i++) {
+            var obj = this.objs[i];
+            for (var j = 0; j < this.objs.length; j++) {
+                if (j !== i) {
+                    var objto = this.objs[j];
+                    var distance = WebGlApi.calculateDistance(obj, objto);
+
+                    if (j === 0) {
+                        this.elobj1.innerHTML = distance;
+                    } else if (j === 1) {
+                        this.elobj2.innerHTML = distance;
+                    }
+                }
+            }
+
+            WebGlApi.drawFrame(this.shaderProgram, obj, false);
+        }
+        //var angle = clock.getElapsedTime() / 1000;
+        //rotateViewMatrices(angle);
 
         requestAnimFrame(() => { this._tick(); });
     }

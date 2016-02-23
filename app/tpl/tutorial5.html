@@ -1,0 +1,70 @@
+﻿<div class="tutorial5">
+    <h1>Example 5</h1>
+    <div data-hook="fps">---</div>
+    <div data-hook="obj1">---</div>
+    <div data-hook="obj2">---</div>
+    <canvas data-hook="canvas" width="1200" height="768">Canvas element is not supported</canvas>
+    <form id="configure-form">
+        <input type="submit" name="GetSphere" value="Get Sphere"></input>
+    </form>
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+
+        uniform mat4 uPMatrix;
+        uniform mat4 uVMatrix;
+        uniform mat4 uMMatrix;
+        uniform mat3 uNMatrix;
+
+        varying vec3 vVertexEyePosition;
+
+        void main(void) {
+            // Get the vertex position in eye coordinates
+            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);
+            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;
+
+            gl_Position = uPMatrix * vertexEyePosition4;
+        }
+    </script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+        #extension GL_OES_standard_derivatives: enable
+
+        precision highp float;
+
+        varying vec3 vVertexEyePosition;
+
+        uniform vec3 uLightPosition;
+
+        uniform vec3 uLightAmbient;
+        uniform vec3 uLightDiffuse;
+        uniform vec3 uLightSpecular;
+
+        uniform vec4 uMaterialColor;
+        uniform float uMaterialShininess;
+
+        void main(void) {
+            vec3 normalEyeVector = normalize(cross(dFdx(vVertexEyePosition), dFdy(vVertexEyePosition)));
+
+            // Calculate the vector (l) to the light source
+            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);
+            // Calculate n dot l for diffuse lighting
+            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);
+
+            float specularLightWeighting = 0.0;
+            if(diffuseLightWeighting > 0.0) {
+                // Calculate the reflection vector (r) that is needed for specular light
+                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);
+                // The camera in eye coordinates is located in the origin and is pointing
+                // along the negative z-axis. Calculate viewVector (v)
+                // in eye coordinates as:
+                // (0.0, 0.0, 0.0) - vVertexEyePosition
+                vec3 eyeVector = -normalize(vVertexEyePosition);
+                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);
+                specularLightWeighting = pow(rdotv, uMaterialShininess);
+            }
+
+            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;
+            
+            gl_FragColor = vec4(uMaterialColor.rgb * lightWeighting, uMaterialColor.a);
+        }
+    </script>
+</div>

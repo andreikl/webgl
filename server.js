@@ -33,7 +33,7 @@ var plugin = {
                 }
                 return next(err);
             }
-            if(stats.warnings.length > 0) {
+            if (stats.warnings.length > 0) {
                 for (var i in stats.warnings) {
                     console.log('\x1b[33m', 'warning:' ,'\x1b[0m');
                     console.log(stats.warnings[i]);
@@ -80,7 +80,7 @@ server.register([{
                             compress: { warnings: false }
                         });
                     }
-                })(),
+                }) (),
                 (function () {
                     if (config.isDev) {
                         return function () {};
@@ -91,7 +91,7 @@ server.register([{
                             }
                         });
                     }
-                })()
+                }) ()
             ],
             errorDetails: true
         }
@@ -490,12 +490,14 @@ server.route({
         objectData.vertices = vertices;
         objectData.triangles = triangles;
 
+        // to support example 4
         objectData.boundingVolume = {
             type: "OBB",
             c: [0, 0, 0],
             u: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
             e: [1, 1, 1]
         }
+        // ----
 
         reply(objectData);
     }
@@ -699,12 +701,14 @@ server.route({
         objectData.vertices = vertices;
         objectData.triangles = triangles;
 
+        // to support example 4
         objectData.boundingVolume = {
             type: "OBB",
             c: [0, 0, 0],
             u: [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
             e: [1, 1, 1]
         }
+        //
 
         reply(objectData);
     }

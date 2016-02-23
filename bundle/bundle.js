@@ -60,7 +60,7 @@
 
 	var _jsViewsMainJsx2 = _interopRequireDefault(_jsViewsMainJsx);
 
-	__webpack_require__(385);
+	__webpack_require__(388);
 
 	window.app = {
 	    init: function init($el) {
@@ -102,26 +102,24 @@
 
 	exports['default'] = _ampersandRouter2['default'].extend({
 	    routes: {
-	        '': '_home',
-	        'tutorial1': '_tutorial1',
-	        'tutorial2': '_tutorial2',
-	        'tutorial3': '_tutorial3',
-	        'tutorial4': '_tutorial4'
-	    },
-	    _home: function _home() {
-	        window.app.model.view = 'home';
-	    },
-	    _tutorial1: function _tutorial1() {
-	        window.app.model.view = 'tutorial1';
-	    },
-	    _tutorial2: function _tutorial2() {
-	        window.app.model.view = 'tutorial2';
-	    },
-	    _tutorial3: function _tutorial3() {
-	        window.app.model.view = 'tutorial3';
-	    },
-	    _tutorial4: function _tutorial4() {
-	        window.app.model.view = 'tutorial4';
+	        '': function _() {
+	            window.app.model.view = 'home';
+	        },
+	        'tutorial1': function tutorial1() {
+	            window.app.model.view = 'tutorial1';
+	        },
+	        'tutorial2': function tutorial2() {
+	            window.app.model.view = 'tutorial2';
+	        },
+	        'tutorial3': function tutorial3() {
+	            window.app.model.view = 'tutorial3';
+	        },
+	        'tutorial4': function tutorial4() {
+	            window.app.model.view = 'tutorial4';
+	        },
+	        'tutorial5': function tutorial5() {
+	            window.app.model.view = 'tutorial5';
+	        }
 	    }
 	});
 	module.exports = exports['default'];
@@ -18506,7 +18504,11 @@
 
 	var _tutorial4Jsx2 = _interopRequireDefault(_tutorial4Jsx);
 
-	var _homeJsx = __webpack_require__(383);
+	var _tutorial5Jsx = __webpack_require__(384);
+
+	var _tutorial5Jsx2 = _interopRequireDefault(_tutorial5Jsx);
+
+	var _homeJsx = __webpack_require__(386);
 
 	var _homeJsx2 = _interopRequireDefault(_homeJsx);
 
@@ -18561,6 +18563,13 @@
 	                    this.tutorial4 = new _tutorial4Jsx2['default']({ main: this });
 	                }
 	                this.pages.set(this.tutorial4);
+	                break;
+
+	            case 'tutorial5':
+	                if (!this.tutorial5) {
+	                    this.tutorial5 = new _tutorial5Jsx2['default']({ main: this });
+	                }
+	                this.pages.set(this.tutorial5);
 	                break;
 
 	            default:
@@ -39887,25 +39896,9 @@
 
 	var _glMatrix2 = _interopRequireDefault(_glMatrix);
 
-	var _matrixJsx = __webpack_require__(389);
+	var _matrixJsx = __webpack_require__(382);
 
 	var _matrixJsx2 = _interopRequireDefault(_matrixJsx);
-
-	_glMatrix2['default'].mat4.multiplyVec3 = function (mat, vec, dest) {
-	    if (!dest) {
-	        dest = vec;
-	    }
-
-	    var x = vec[0],
-	        y = vec[1],
-	        z = vec[2];
-
-	    dest[0] = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
-	    dest[1] = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
-	    dest[2] = mat[2] * x + mat[6] * y + mat[10] * z + mat[14];
-
-	    return dest;
-	};
 
 	window.requestAnimFrame = (function () {
 	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.ieRequestAnimationFrame || function (callback) {
@@ -39915,7 +39908,82 @@
 
 	var WebGlApi = {
 	    DATA_TYPE: { COORDINATES: 1, NORMALS: 2, TANGENTS: 3, TEXTURE: 4 },
-	    BUFFER_TYPE: { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 }
+	    BUFFER_TYPE: { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 },
+	    FLOAT_MIN_VALUE: -3.40282347e+38,
+	    FLOAT_MAX_VALUE: 3.40282347e+38,
+
+	    calculateAABB: function calculateAABB(obj1) {
+	        var _this = this;
+
+	        var stride = obj1.stride / 4;
+
+	        var calc = function calc(vec) {
+	            var minproj = _this.FLOAT_MAX_VALUE,
+	                maxproj = -_this.FLOAT_MIN_VALUE;
+	            var minvert = undefined,
+	                maxvert = undefined;
+
+	            for (var i = 0; i < obj1.verticesData.length; i += stride) {
+	                var vert = [obj1.verticesData[i], obj1.verticesData[i + 1], obj1.verticesData[i + 2]];
+	                var proj = _matrixJsx2['default'].vec3.dot(vec, vert);
+
+	                if (proj < minproj) {
+	                    minproj = proj;
+	                    minvert = vert;
+	                }
+
+	                if (proj > maxproj) {
+	                    maxproj = proj;
+	                    maxvert = vert;
+	                }
+	            }
+	            return [minvert, maxvert];
+	        };
+
+	        var boundingVolume = {
+	            type: "AABB",
+	            c: [],
+	            r: []
+	        };
+
+	        var resx = calc([1, 0, 0]);
+	        boundingVolume.r[0] = (resx[1][0] - resx[0][0]) / 2;
+	        boundingVolume.c[0] = resx[0][0] + boundingVolume.r[0];
+
+	        var resy = calc([0, 1, 0]);
+	        boundingVolume.r[1] = (resx[1][1] - resx[0][1]) / 2;
+	        boundingVolume.c[1] = resx[0][1] + boundingVolume.r[1];
+
+	        var resz = calc([0, 0, 1]);
+	        boundingVolume.r[2] = (resz[1][2] - resz[0][2]) / 2;
+	        boundingVolume.c[2] = resz[0][2] + boundingVolume.r[2];
+
+	        obj1.boundingVolume = boundingVolume;
+	    },
+
+	    calculateDistance: function calculateDistance(obj1, obj2) {
+	        var bv1 = obj1.boundingVolume;
+	        var bv2 = obj2.boundingVolume;
+	        if (bv2.type === 'OBB') {
+	            var v = _matrixJsx2['default'].vec3.create(obj1.center);
+	            _matrixJsx2['default'].vec3.subtract(v, obj2.center);
+	            var sqDist = 0.0;
+	            // For each OBB axis...
+	            for (var i = 0; i < 3; i++) {
+	                // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
+	                var dist = _matrixJsx2['default'].vec3.dot(v, bv2.u[i]);
+	                var excess = 0.0;
+	                if (dist < -bv2.e[i]) {
+	                    excess = dist + bv2.e[i];
+	                } else if (dist > bv2.e[i]) {
+	                    excess = dist - bv2.e[i];
+	                }
+	                sqDist += excess * excess;
+	            }
+	            return sqDist;
+	        }
+	        return undefined;
+	    }
 	};
 
 	WebGlApi.initWebGl = function (canvas) {
@@ -39984,14 +40052,16 @@
 
 	WebGlApi.setUpObject = function (scene, obj, data) {
 	    var verticesBuffer = WebGlApi.gl.createBuffer();
+	    var verticesData = new Float32Array(data.vertices);
 	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
-	    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
+	    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, verticesData, WebGlApi.gl.STATIC_DRAW);
 
 	    var trianglesBuffer = WebGlApi.gl.createBuffer();
 	    WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
 	    WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
 
 	    obj.vertices = verticesBuffer;
+	    obj.verticesData = verticesData;
 	    obj.triangles = trianglesBuffer;
 	    obj.types = data.types;
 	    obj.buffers = data.buffers;
@@ -40067,64 +40137,6 @@
 	        }
 	        drown += item.size * 2;
 	    }
-	};
-
-	// Given point p, return point q on (or in) OBB b, closest to p
-	//void ClosestPtPointOBB(Point p, OBB b, Point &q) {
-	//    Vector d = p - b.c;
-	//    // Start result at center of box; make steps from there
-	//    q = b.c;
-	//    // For each OBB axis...
-	//    for (int i = 0; i < 3; i++) {
-	//        // ...project d onto that axis to get the distance
-	//        // along the axis of d from the box center
-	//        float dist = Dot(d, b.u[i]);
-	//        // If distance farther than the box extents, clamp to the box
-	//        if (dist > b.e[i]) dist = b.e[i];
-	//        if (dist < -b.e[i]) dist = -b.e[i];
-	//        // Step that distance along the axis to get world coordinate
-	//        q += dist * b.u[i];
-	//    }
-	//}
-
-	// Computes the square distance between point p and OBB b
-	//float SqDistPointOBB(Point p, OBB b) {
-	//    Vector v = p - b.c;
-	//    float sqDist = 0.0f;
-	//    for (int i = 0; i < 3; i++) {
-	//        // Project vector from box center to p on each axis, getting the distance
-	//        // of p along that axis, and count any excess distance outside box extents
-	//        float d = Dot(v, b.u[i]), excess = 0.0f;
-	//        if (d < -b.e[i])
-	//            excess = d + b.e[i];
-	//        else if (d > b.e[i])
-	//            excess = d - b.e[i];
-	//        sqDist += excess * excess;
-	//    }
-	//    return sqDist;
-	//}
-	WebGlApi.calculateDistance = function (obj1, obj2) {
-	    var bv1 = obj1.boundingVolume;
-	    var bv2 = obj2.boundingVolume;
-	    if (bv2.type === 'OBB') {
-	        var v = _matrixJsx2['default'].vec3.create(obj1.center);
-	        _matrixJsx2['default'].vec3.subtract(v, obj2.center);
-	        var sqDist = 0.0;
-	        // For each OBB axis...
-	        for (var i = 0; i < 3; i++) {
-	            // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
-	            var dist = _matrixJsx2['default'].vec3.dot(v, bv2.u[i]);
-	            var excess = 0.0;
-	            if (dist < -bv2.e[i]) {
-	                excess = dist + bv2.e[i];
-	            } else if (dist > bv2.e[i]) {
-	                excess = dist - bv2.e[i];
-	            }
-	            sqDist += excess * excess;
-	        }
-	        return sqDist;
-	    }
-	    return undefined;
 	};
 
 	WebGlApi.Fps = function (element) {
@@ -45336,6 +45348,10 @@
 
 	var _ampersandView2 = _interopRequireDefault(_ampersandView);
 
+	var _glMatrix = __webpack_require__(366);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
 	var _utilsWebglhelpersJsx = __webpack_require__(364);
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
@@ -45344,9 +45360,9 @@
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(366);
+	var _utilsMatrixJsx = __webpack_require__(382);
 
-	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+	var _utilsMatrixJsx2 = _interopRequireDefault(_utilsMatrixJsx);
 
 	var _tplTutorial2Html = __webpack_require__(378);
 
@@ -45475,7 +45491,7 @@
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
 	        var lightPos = [0.0, 0.0, 3.0];
-	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsMatrixJsx2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
 	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
@@ -45509,6 +45525,10 @@
 
 	var _ampersandView2 = _interopRequireDefault(_ampersandView);
 
+	var _glMatrix = __webpack_require__(366);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
 	var _utilsWebglhelpersJsx = __webpack_require__(364);
 
 	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
@@ -45517,9 +45537,9 @@
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _glMatrix = __webpack_require__(366);
+	var _utilsMatrixJsx = __webpack_require__(382);
 
-	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+	var _utilsMatrixJsx2 = _interopRequireDefault(_utilsMatrixJsx);
 
 	var _tplTutorial3Html = __webpack_require__(380);
 
@@ -45677,7 +45697,7 @@
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
 	        var lightPos = [0.0, 0.0, 3.0];
-	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsMatrixJsx2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
 	        _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, this.object1, false);
@@ -45723,11 +45743,11 @@
 
 	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
 
-	var _utilsMatrixJsx = __webpack_require__(389);
+	var _utilsMatrixJsx = __webpack_require__(382);
 
 	var _utilsMatrixJsx2 = _interopRequireDefault(_utilsMatrixJsx);
 
-	var _tplTutorial4Html = __webpack_require__(382);
+	var _tplTutorial4Html = __webpack_require__(383);
 
 	var _tplTutorial4Html2 = _interopRequireDefault(_tplTutorial4Html);
 
@@ -45754,7 +45774,7 @@
 
 	exports['default'] = _ampersandView2['default'].extend({
 	    template: _tplTutorial4Html2['default'],
-	    pageTitle: 'Tutorial 4!',
+	    pageTitle: 'Tutorial 4! Distance between OBB',
 	    props: {
 	        main: 'state',
 	        canvas: 'state'
@@ -45903,14 +45923,13 @@
 
 	        this.fps.update();
 
-	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
 
 	        var lightPos = [0.0, 0.0, 3.0];
-	        _glMatrix2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsMatrixJsx2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
 	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
 
 	        for (var i = 0; i < this.objs.length; i++) {
@@ -45921,7 +45940,7 @@
 	            var z = obj.direction[2] * obj.speed;
 	            _glMatrix2['default'].mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
 
-	            _glMatrix2['default'].mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+	            _utilsMatrixJsx2['default'].mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
 	            if (obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
 	                obj.direction[0] = -obj.direction[0];
 	                obj.direction[1] = -obj.direction[1];
@@ -45966,366 +45985,6 @@
 
 /***/ },
 /* 382 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <div data-hook=\"obj1\">---</div>\r\n    <div data-hook=\"obj2\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uPMatrix;\r\n        uniform mat4 uVMatrix;\r\n        uniform mat4 uMMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
-
-/***/ },
-/* 383 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _ampersandView = __webpack_require__(178);
-
-	var _ampersandView2 = _interopRequireDefault(_ampersandView);
-
-	var _tplHomeHtml = __webpack_require__(384);
-
-	var _tplHomeHtml2 = _interopRequireDefault(_tplHomeHtml);
-
-	exports['default'] = _ampersandView2['default'].extend({
-	    template: _tplHomeHtml2['default'],
-	    pageTitle: 'Home',
-	    initialize: function initialize() {}
-	});
-	module.exports = exports['default'];
-
-/***/ },
-/* 384 */
-/***/ function(module, exports) {
-
-	module.exports = "<div class=\"home\">\r\n    <h1>Tutorials</h1>\r\n    <ul>\r\n        <li>\r\n            <a href=\"#/tutorial1\">Tutorial 1</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial2\">Tutorial 2</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial3\">Tutorial 3</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial4\">Tutorial 4</a>\r\n        </li>\r\n    </ul>\r\n</div>\r\n\r\n";
-
-/***/ },
-/* 385 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(386);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(388)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./app.scss", function() {
-				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./app.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 386 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(387)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  background: black;\n  color: white; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 387 */
-/***/ function(module, exports) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	// css base code, injected by the css-loader
-	module.exports = function() {
-		var list = [];
-
-		// return the list of modules as css string
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-
-		// import a list of modules into the list
-		list.i = function(modules, mediaQuery) {
-			if(typeof modules === "string")
-				modules = [[null, modules, ""]];
-			var alreadyImportedModules = {};
-			for(var i = 0; i < this.length; i++) {
-				var id = this[i][0];
-				if(typeof id === "number")
-					alreadyImportedModules[id] = true;
-			}
-			for(i = 0; i < modules.length; i++) {
-				var item = modules[i];
-				// skip already imported module
-				// this implementation is not 100% perfect for weird media query combinations
-				//  when a module is imported multiple times with different media queries.
-				//  I hope this will never occur (Hey this way we have smaller bundles)
-				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-					if(mediaQuery && !item[2]) {
-						item[2] = mediaQuery;
-					} else if(mediaQuery) {
-						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-					}
-					list.push(item);
-				}
-			}
-		};
-		return list;
-	};
-
-
-/***/ },
-/* 388 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0;
-
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
-
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
-
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
-
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
-
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
-
-	function createStyleElement() {
-		var styleElement = document.createElement("style");
-		var head = getHeadElement();
-		styleElement.type = "text/css";
-		head.appendChild(styleElement);
-		return styleElement;
-	}
-
-	function createLinkElement() {
-		var linkElement = document.createElement("link");
-		var head = getHeadElement();
-		linkElement.rel = "stylesheet";
-		head.appendChild(linkElement);
-		return linkElement;
-	}
-
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
-
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement());
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement();
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement();
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				styleElement.parentNode.removeChild(styleElement);
-			};
-		}
-
-		update(obj);
-
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
-
-	var replaceText = (function () {
-		var textStore = [];
-
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
-	})();
-
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
-
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
-
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
-
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
-
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
-
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-		var sourceMap = obj.sourceMap;
-
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
-
-		var blob = new Blob([css], { type: "text/css" });
-
-		var oldSrc = linkElement.href;
-
-		linkElement.href = URL.createObjectURL(blob);
-
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
-
-
-/***/ },
-/* 389 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -46399,8 +46058,8 @@
 	            dest[2] = vec[2] * val;
 	            return dest;
 	        },
-	        dot: function dot(vec, vec2) {
-	            return vec[0] * vec2[0] + vec[1] * vec2[1] + vec[2] * vec2[2];
+	        dot: function dot(vec1, vec2) {
+	            return vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
 	        }
 	    },
 	    mat4: {
@@ -46665,6 +46324,618 @@
 	    }
 	};
 	module.exports = exports['default'];
+
+/***/ },
+/* 383 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"tutorial4\">\r\n    <h1>Example 4</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <div data-hook=\"obj1\">---</div>\r\n    <div data-hook=\"obj2\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n        attribute vec3 aVertexNormal;\r\n        attribute vec3 aVertexSTangent;\r\n        attribute vec2 aVertexTexture;\r\n\r\n        uniform mat4 uPMatrix;\r\n        uniform mat4 uVMatrix;\r\n        uniform mat4 uMMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        void main(void) {\r\n            // Create the Tangent-Binormal-Normal Matrix used for transforming\r\n            // coordinates from object space to tangent space\r\n            vec3 vNormal = normalize(uNMatrix * aVertexNormal);\r\n            vec3 vTangent = normalize(uNMatrix * aVertexSTangent);\r\n            vec3 vBinormal = normalize(cross(vNormal, vTangent));\r\n            tbn = mat3(vTangent, vBinormal, vNormal);\r\n\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            vUV = aVertexTexture;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n        varying vec2 vUV;\r\n        varying mat3 tbn;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform float uMaterialShininess;\r\n\r\n        uniform sampler2D uSampler;\r\n        uniform sampler2D uBump;\r\n\r\n        void main(void) {\r\n            // Transform texture coordinate of normal map to a range (-1.0, 1.0)\r\n            vec3 normalCoordinate = texture2D(uBump, vUV).xyz * 2.0 - 1.0;\r\n\r\n            // Transform the normal vector in the RGB channels to tangent space\r\n            vec3 normal = normalize(tbn * normalCoordinate.rgb);\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normal, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normal);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n\r\n            vec4 texelColor = texture2D(uSampler, vUV);\r\n            \r\n            gl_FragColor = vec4(texelColor.rgb * lightWeighting, texelColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+
+/***/ },
+/* 384 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ampersandView = __webpack_require__(178);
+
+	var _ampersandView2 = _interopRequireDefault(_ampersandView);
+
+	var _glMatrix = __webpack_require__(366);
+
+	var _glMatrix2 = _interopRequireDefault(_glMatrix);
+
+	var _utilsWebglhelpersJsx = __webpack_require__(364);
+
+	var _utilsWebglhelpersJsx2 = _interopRequireDefault(_utilsWebglhelpersJsx);
+
+	var _utilsUtilsJsx = __webpack_require__(365);
+
+	var _utilsUtilsJsx2 = _interopRequireDefault(_utilsUtilsJsx);
+
+	var _utilsMatrixJsx = __webpack_require__(382);
+
+	var _utilsMatrixJsx2 = _interopRequireDefault(_utilsMatrixJsx);
+
+	var _tplTutorial5Html = __webpack_require__(385);
+
+	var _tplTutorial5Html2 = _interopRequireDefault(_tplTutorial5Html);
+
+	var Canvas = _ampersandView2['default'].extend({
+	    props: {
+	        main: 'state'
+	    },
+	    derived: {
+	        'size': { //  Width in px.
+	            deps: ['main.windowWidth'],
+	            fn: function fn() {
+	                return this._sizeHandler();
+	            }
+	        }
+	    },
+	    _sizeHandler: function _sizeHandler() {
+	        var style = window.getComputedStyle(this.el);
+	        return {
+	            width: style.width === "" ? undefined : parseFloat(style.width.replace(/[^\d^\.]*/g, '')),
+	            height: style.height === "" ? undefined : parseFloat(style.height.replace(/[^\d^\.]*/g, ''))
+	        };
+	    }
+	});
+
+	exports['default'] = _ampersandView2['default'].extend({
+	    template: _tplTutorial5Html2['default'],
+	    pageTitle: 'Tutorial 5 Intersection of bounding AABB volumes!',
+	    props: {
+	        main: 'state',
+	        canvas: 'state'
+	    },
+	    bindings: {
+	        'canvas.size': {
+	            type: function type(el, value, previousValue) {
+	                if (value) {
+	                    this._setPerspective(value);
+	                }
+	            }
+	        }
+	    },
+	    render: function render() {
+	        var _this = this;
+
+	        this.renderWithTemplate();
+
+	        this.canvas = new Canvas({
+	            el: this.queryByHook('canvas'),
+	            main: this.main
+	        });
+	        _utilsWebglhelpersJsx2['default'].initWebGl(this.canvas.el);
+	        //this.clock = new WebGlApi.Clock();
+	        this.fps = new _utilsWebglhelpersJsx2['default'].Fps(this.queryByHook('fps'));
+	        this.control = new _utilsWebglhelpersJsx2['default'].OrbitControl(this.canvas.el, 3);
+	        this.shaderProgram = this._initShaders(_utilsWebglhelpersJsx2['default'].gl, this.query('#shader-fs'), this.query('#shader-vs'));
+
+	        this.elobj1 = this.queryByHook('obj1');
+	        this.elobj2 = this.queryByHook('obj2');
+
+	        setTimeout(function () {
+	            _this._setPerspective(_this.canvas._sizeHandler());
+	        }, 10);
+
+	        this.objs = [];
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getSphere', function (data) {
+	            _this.objs[0] = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.objs[0], data);
+
+	            if (_this.objs[1]) {
+	                _this._run();
+	            }
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+
+	        _utilsUtilsJsx2['default'].ajaxGet('/api/getCube', function (data) {
+	            _this.objs[1] = {};
+	            _utilsWebglhelpersJsx2['default'].setUpObject(_this, _this.objs[1], data);
+
+	            if (_this.objs[0]) {
+	                _this._run();
+	            }
+	        }, function (error) {
+	            console.log('Error is happend: ', error);
+	        });
+	    },
+	    initialize: function initialize() {
+	        this.once('remove', this.cleanup, this);
+	    },
+	    cleanup: function cleanup() {
+	        this.isRun = false;
+	    },
+	    _setPerspective: function _setPerspective(size) {
+	        //console.log('_setPerspective: ', size)
+	        //0.7854 = 2*pi/8
+	        if (size.width && size.height) {
+	            _glMatrix2['default'].mat4.perspective(_utilsWebglhelpersJsx2['default'].pMatrix, 0.7854, size.width / size.height, 0.1, 100.0);
+	        }
+	    },
+	    _initShaders: function _initShaders(gl, fs, vs) {
+	        var fragmentShader = _utilsWebglhelpersJsx2['default'].getShader(fs);
+	        var vertexShader = _utilsWebglhelpersJsx2['default'].getShader(vs);
+	        var shaderProgram = gl.createProgram();
+	        gl.attachShader(shaderProgram, vertexShader);
+	        gl.attachShader(shaderProgram, fragmentShader);
+	        gl.linkProgram(shaderProgram);
+
+	        // get pointers to the shader params
+	        shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+	        shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+	        shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
+	        shaderProgram.modelMatrixUniform = gl.getUniformLocation(shaderProgram, "uMMatrix");
+	        shaderProgram.modelNormalMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+
+	        shaderProgram.materialColorUniform = gl.getUniformLocation(shaderProgram, "uMaterialColor");
+	        shaderProgram.materialShininessUniform = gl.getUniformLocation(shaderProgram, "uMaterialShininess");
+
+	        shaderProgram.lightPositionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
+	        shaderProgram.lightAmbientUniform = gl.getUniformLocation(shaderProgram, "uLightAmbient");
+	        shaderProgram.lightDiffuseUniform = gl.getUniformLocation(shaderProgram, "uLightDiffuse");
+	        shaderProgram.lightSpecularUniform = gl.getUniformLocation(shaderProgram, "uLightSpecular");
+	        return shaderProgram;
+	    },
+	    _initTexture: function _initTexture(url, texture) {
+	        var image = new Image();
+	        image.onload = function () {
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, texture);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texImage2D(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, 0, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.RGBA, _utilsWebglhelpersJsx2['default'].gl.UNSIGNED_BYTE, image);
+
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MAG_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.texParameteri(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, _utilsWebglhelpersJsx2['default'].gl.TEXTURE_MIN_FILTER, _utilsWebglhelpersJsx2['default'].gl.LINEAR);
+	            _utilsWebglhelpersJsx2['default'].gl.generateMipmap(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D);
+
+	            _utilsWebglhelpersJsx2['default'].gl.bindTexture(_utilsWebglhelpersJsx2['default'].gl.TEXTURE_2D, null);
+	        };
+	        image.src = url;
+	    },
+	    _run: function _run() {
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var x = Math.random() * 2 - 1;
+	            var y = Math.random() * 2 - 1;
+	            var z = Math.random() * 2 - 1;
+	            this.objs[i].direction = [x, y, z];
+	            this.objs[i].speed = Math.random() * 0.1;
+	            this.objs[i].center = _utilsMatrixJsx2['default'].mat4.create();
+	        }
+	        this.isRun = true;
+	        this._tick();
+	    },
+	    _tick: function _tick() {
+	        var _this2 = this;
+
+	        if (this.isRun !== true) {
+	            return;
+	        }
+
+	        this.fps.update();
+
+	        _utilsWebglhelpersJsx2['default'].gl.uniform4f(this.shaderProgram.materialColorUniform, 0.0, 0.0, 1.0, 1.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform1f(this.shaderProgram.materialShininessUniform, 32.0);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightAmbientUniform, 0.5, 0.5, 0.5);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightDiffuseUniform, 0.9, 0.9, 0.9);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3f(this.shaderProgram.lightSpecularUniform, 1.0, 1.0, 1.0);
+
+	        var lightPos = [0.0, 0.0, 3.0];
+	        _utilsMatrixJsx2['default'].mat4.multiplyVec3(_utilsWebglhelpersJsx2['default'].vMatrix, lightPos);
+	        _utilsWebglhelpersJsx2['default'].gl.uniform3fv(this.shaderProgram.lightPositionUniform, lightPos);
+
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var obj = this.objs[i];
+
+	            var x = obj.direction[0] * obj.speed;
+	            var y = obj.direction[1] * obj.speed;
+	            var z = obj.direction[2] * obj.speed;
+	            _glMatrix2['default'].mat4.translate(obj.mMatrix, obj.mMatrix, [x, y, z]);
+
+	            _utilsMatrixJsx2['default'].mat4.multiplyVec3(obj.mMatrix, obj.boundingVolume.c, obj.center);
+	            if (obj.center[0] > 5 || obj.center[0] < -5 || obj.center[1] > 5 || obj.center[1] < -5 || obj.center[2] > 5 || obj.center[2] < -5) {
+	                obj.direction[0] = -obj.direction[0];
+	                obj.direction[1] = -obj.direction[1];
+	                obj.direction[2] = -obj.direction[2];
+	            }
+	        }
+
+	        for (var i = 0; i < this.objs.length; i++) {
+	            var obj = this.objs[i];
+	            for (var j = 0; j < this.objs.length; j++) {
+	                if (j !== i) {
+	                    var objto = this.objs[j];
+	                    var distance = _utilsWebglhelpersJsx2['default'].calculateDistance(obj, objto);
+
+	                    if (j === 0) {
+	                        this.elobj1.innerHTML = distance;
+	                    } else if (j === 1) {
+	                        this.elobj2.innerHTML = distance;
+	                    }
+	                }
+	            }
+
+	            _utilsWebglhelpersJsx2['default'].drawFrame(this.shaderProgram, obj, false);
+	        }
+	        //var angle = clock.getElapsedTime() / 1000;
+	        //rotateViewMatrices(angle);
+
+	        requestAnimFrame(function () {
+	            _this2._tick();
+	        });
+	    }
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 385 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"tutorial5\">\r\n    <h1>Example 5</h1>\r\n    <div data-hook=\"fps\">---</div>\r\n    <div data-hook=\"obj1\">---</div>\r\n    <div data-hook=\"obj2\">---</div>\r\n    <canvas data-hook=\"canvas\" width=\"1200\" height=\"768\">Canvas element is not supported</canvas>\r\n    <form id=\"configure-form\">\r\n        <input type=\"submit\" name=\"GetSphere\" value=\"Get Sphere\"></input>\r\n    </form>\r\n    <script id=\"shader-vs\" type=\"x-shader/x-vertex\">\r\n        attribute vec3 aVertexPosition;\r\n\r\n        uniform mat4 uPMatrix;\r\n        uniform mat4 uVMatrix;\r\n        uniform mat4 uMMatrix;\r\n        uniform mat3 uNMatrix;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        void main(void) {\r\n            // Get the vertex position in eye coordinates\r\n            vec4 vertexEyePosition4 = uVMatrix * uMMatrix * vec4(aVertexPosition, 1.0);\r\n            vVertexEyePosition = vertexEyePosition4.xyz / vertexEyePosition4.w;\r\n\r\n            gl_Position = uPMatrix * vertexEyePosition4;\r\n        }\r\n    </script>\r\n    <script id=\"shader-fs\" type=\"x-shader/x-fragment\">\r\n        #extension GL_OES_standard_derivatives: enable\r\n\r\n        precision highp float;\r\n\r\n        varying vec3 vVertexEyePosition;\r\n\r\n        uniform vec3 uLightPosition;\r\n\r\n        uniform vec3 uLightAmbient;\r\n        uniform vec3 uLightDiffuse;\r\n        uniform vec3 uLightSpecular;\r\n\r\n        uniform vec4 uMaterialColor;\r\n        uniform float uMaterialShininess;\r\n\r\n        void main(void) {\r\n            vec3 normalEyeVector = normalize(cross(dFdx(vVertexEyePosition), dFdy(vVertexEyePosition)));\r\n\r\n            // Calculate the vector (l) to the light source\r\n            vec3 lightVector = normalize(uLightPosition - vVertexEyePosition);\r\n            // Calculate n dot l for diffuse lighting\r\n            float diffuseLightWeighting = max(dot(normalEyeVector, lightVector), 0.0);\r\n\r\n            float specularLightWeighting = 0.0;\r\n            if(diffuseLightWeighting > 0.0) {\r\n                // Calculate the reflection vector (r) that is needed for specular light\r\n                vec3 reflectionVector = reflect(-lightVector, normalEyeVector);\r\n                // The camera in eye coordinates is located in the origin and is pointing\r\n                // along the negative z-axis. Calculate viewVector (v)\r\n                // in eye coordinates as:\r\n                // (0.0, 0.0, 0.0) - vVertexEyePosition\r\n                vec3 eyeVector = -normalize(vVertexEyePosition);\r\n                float rdotv = max(dot(reflectionVector, eyeVector), 0.0);\r\n                specularLightWeighting = pow(rdotv, uMaterialShininess);\r\n            }\r\n\r\n            vec3 lightWeighting = uLightAmbient + uLightDiffuse * diffuseLightWeighting + uLightSpecular * specularLightWeighting;\r\n            \r\n            gl_FragColor = vec4(uMaterialColor.rgb * lightWeighting, uMaterialColor.a);\r\n        }\r\n    </script>\r\n</div>\r\n";
+
+/***/ },
+/* 386 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _ampersandView = __webpack_require__(178);
+
+	var _ampersandView2 = _interopRequireDefault(_ampersandView);
+
+	var _tplHomeHtml = __webpack_require__(387);
+
+	var _tplHomeHtml2 = _interopRequireDefault(_tplHomeHtml);
+
+	exports['default'] = _ampersandView2['default'].extend({
+	    template: _tplHomeHtml2['default'],
+	    pageTitle: 'Home',
+	    initialize: function initialize() {}
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 387 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"home\">\r\n    <h1>Tutorials</h1>\r\n    <ul>\r\n        <li>\r\n            <a href=\"#/tutorial1\">Tutorial 1</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial2\">Tutorial 2</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial3\">Tutorial 3</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial4\">Tutorial 4</a>\r\n        </li>\r\n        <li>\r\n            <a href=\"#/tutorial5\">Tutorial 5</a>\r\n        </li>\r\n    </ul>\r\n</div>\r\n\r\n";
+
+/***/ },
+/* 388 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(389);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(391)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./app.scss", function() {
+				var newContent = require("!!./../../node_modules/css-loader/index.js!./../../node_modules/sass-loader/index.js!./app.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 389 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(390)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "* {\n  border: 0;\n  margin: 0;\n  outline: 0;\n  padding: 0;\n  box-sizing: border-box; }\n\nhtml {\n  width: 100%;\n  height: 100%;\n  min-height: 100%; }\n\nbody {\n  height: inherit;\n  min-height: inherit; }\n\nbody, input, button {\n  font-family: \"Arial, sans-serif\";\n  font-size: 16px;\n  line-height: 20px; }\n\nh1 {\n  font-size: 24px;\n  line-height: 28px; }\n\nbody {\n  background: black;\n  color: white; }\n\n.container {\n  height: inherit;\n  min-height: inherit; }\n  .container .tutorial1, .container .tutorial2, .container .tutorial3, .container .tutorial4 {\n    height: inherit;\n    min-height: inherit; }\n    .container .tutorial1 canvas, .container .tutorial2 canvas, .container .tutorial3 canvas, .container .tutorial4 canvas {\n      height: calc(100% - 69px);\n      width: 100%; }\n", ""]);
+
+	// exports
+
+
+/***/ },
+/* 390 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 391 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0;
+
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+
+	function createStyleElement() {
+		var styleElement = document.createElement("style");
+		var head = getHeadElement();
+		styleElement.type = "text/css";
+		head.appendChild(styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement() {
+		var linkElement = document.createElement("link");
+		var head = getHeadElement();
+		linkElement.rel = "stylesheet";
+		head.appendChild(linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement());
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement();
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement();
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				styleElement.parentNode.removeChild(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
 
 /***/ }
 /******/ ]);

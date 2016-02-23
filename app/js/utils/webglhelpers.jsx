@@ -2,20 +2,6 @@
 
 import Mtrx from './matrix.jsx';
 
-Matrix.mat4.multiplyVec3 = function (mat, vec, dest) {
-    if (!dest) { 
-        dest = vec;
-    }
-
-    var x = vec[0], y = vec[1], z = vec[2];
-    
-    dest[0] = mat[0]*x + mat[4]*y + mat[8]*z + mat[12];
-    dest[1] = mat[1]*x + mat[5]*y + mat[9]*z + mat[13];
-    dest[2] = mat[2]*x + mat[6]*y + mat[10]*z + mat[14];
-    
-    return dest;
-}
-
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -28,7 +14,78 @@ window.requestAnimFrame = (function () {
 
 var WebGlApi = {
     DATA_TYPE: { COORDINATES: 1, NORMALS: 2, TANGENTS: 3, TEXTURE: 4 },
-    BUFFER_TYPE: { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 }
+    BUFFER_TYPE: { LINE_STRIP: 1, LINES: 2, TRIANGLES: 3, TRIANGLE_STRIP: 4 },
+    FLOAT_MIN_VALUE: -3.40282347e+38,
+    FLOAT_MAX_VALUE: 3.40282347e+38,
+
+    calculateAABB (obj1) {
+        const stride = obj1.stride / 4;
+
+        let calc = (vec) => {
+            let minproj = this.FLOAT_MAX_VALUE, maxproj = -this.FLOAT_MIN_VALUE;
+            let minvert = undefined, maxvert = undefined;
+
+            for (let i = 0; i < obj1.verticesData.length; i += stride) {
+                const vert = [obj1.verticesData[i], obj1.verticesData[i + 1], obj1.verticesData[i + 2]];
+                const proj = Mtrx.vec3.dot(vec, vert);
+
+                if (proj < minproj) {
+                    minproj = proj;
+                    minvert = vert;
+                }
+
+                if (proj > maxproj) {
+                    maxproj = proj;
+                    maxvert = vert;
+                }
+            }
+            return [minvert, maxvert];
+        }
+
+        let boundingVolume = {
+            type: "AABB",
+            c: [],
+            r: []
+        }
+
+        const resx = calc([1, 0, 0]);
+        boundingVolume.r[0] = (resx[1][0] - resx[0][0]) / 2;
+        boundingVolume.c[0] = resx[0][0] + boundingVolume.r[0]
+
+        const resy = calc([0, 1, 0]);
+        boundingVolume.r[1] = (resx[1][1] - resx[0][1]) / 2;
+        boundingVolume.c[1] = resx[0][1] + boundingVolume.r[1];
+
+        const resz = calc([0, 0, 1]);
+        boundingVolume.r[2] = (resz[1][2] - resz[0][2]) / 2;
+        boundingVolume.c[2] = resz[0][2] + boundingVolume.r[2];
+
+        obj1.boundingVolume = boundingVolume;
+    },
+
+    calculateDistance (obj1, obj2) {
+        var bv1 = obj1.boundingVolume;
+        var bv2 = obj2.boundingVolume;
+        if (bv2.type === 'OBB') {
+            var v = Mtrx.vec3.create(obj1.center);
+            Mtrx.vec3.subtract(v, obj2.center);
+            var sqDist = 0.0;
+            // For each OBB axis...
+            for (var i = 0; i < 3; i++) {
+                // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
+                var dist = Mtrx.vec3.dot(v, bv2.u[i]);
+                var excess = 0.0;
+                if (dist < -bv2.e[i]) {
+                    excess = dist + bv2.e[i];
+                } else if (dist > bv2.e[i]) {
+                    excess = dist - bv2.e[i];
+                }
+                sqDist += excess * excess;
+            }
+            return sqDist;
+        }
+        return undefined;
+    }
 };
 
 WebGlApi.initWebGl = function (canvas) {
@@ -97,14 +154,16 @@ WebGlApi.getShader = function(shaderScript) {
 
 WebGlApi.setUpObject = function (scene, obj, data) {
     var verticesBuffer = WebGlApi.gl.createBuffer();
+    var verticesData = new Float32Array(data.vertices);
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ARRAY_BUFFER, verticesBuffer);
-    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, new Float32Array(data.vertices), WebGlApi.gl.STATIC_DRAW);
+    WebGlApi.gl.bufferData(WebGlApi.gl.ARRAY_BUFFER, verticesData, WebGlApi.gl.STATIC_DRAW);
 
     var trianglesBuffer = WebGlApi.gl.createBuffer();
     WebGlApi.gl.bindBuffer(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, trianglesBuffer);
     WebGlApi.gl.bufferData(WebGlApi.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data.triangles), WebGlApi.gl.STATIC_DRAW);
 
     obj.vertices = verticesBuffer;
+    obj.verticesData = verticesData;
     obj.triangles = trianglesBuffer;
     obj.types = data.types;
     obj.buffers = data.buffers;
@@ -180,64 +239,6 @@ WebGlApi.drawFrame = function(shaderProgram, globj, isSkelet) {
         }
         drown += (item.size * 2);
     }
-}
-
-// Given point p, return point q on (or in) OBB b, closest to p
-//void ClosestPtPointOBB(Point p, OBB b, Point &q) {
-//    Vector d = p - b.c;
-//    // Start result at center of box; make steps from there
-//    q = b.c;
-//    // For each OBB axis...
-//    for (int i = 0; i < 3; i++) {
-//        // ...project d onto that axis to get the distance
-//        // along the axis of d from the box center
-//        float dist = Dot(d, b.u[i]);
-//        // If distance farther than the box extents, clamp to the box
-//        if (dist > b.e[i]) dist = b.e[i];
-//        if (dist < -b.e[i]) dist = -b.e[i];
-//        // Step that distance along the axis to get world coordinate
-//        q += dist * b.u[i];
-//    }
-//}
-
-// Computes the square distance between point p and OBB b
-//float SqDistPointOBB(Point p, OBB b) {
-//    Vector v = p - b.c;
-//    float sqDist = 0.0f;
-//    for (int i = 0; i < 3; i++) {
-//        // Project vector from box center to p on each axis, getting the distance
-//        // of p along that axis, and count any excess distance outside box extents
-//        float d = Dot(v, b.u[i]), excess = 0.0f;
-//        if (d < -b.e[i])
-//            excess = d + b.e[i];
-//        else if (d > b.e[i])
-//            excess = d - b.e[i];
-//        sqDist += excess * excess;
-//    }
-//    return sqDist;
-//}
-WebGlApi.calculateDistance = function (obj1, obj2) {
-    var bv1 = obj1.boundingVolume;
-    var bv2 = obj2.boundingVolume;
-    if (bv2.type === 'OBB') {
-        var v = Mtrx.vec3.create(obj1.center);
-        Mtrx.vec3.subtract(v, obj2.center);
-        var sqDist = 0.0;
-        // For each OBB axis...
-        for (var i = 0; i < 3; i++) {
-            // Project vector from box center to p on each axis, getting the distance of p along that axis, and count any excess distance outside box extents
-            var dist = Mtrx.vec3.dot(v, bv2.u[i]);
-            var excess = 0.0;
-            if (dist < -bv2.e[i]) {
-                excess = dist + bv2.e[i];
-            } else if (dist > bv2.e[i]) {
-                excess = dist - bv2.e[i];
-            }
-            sqDist += excess * excess;
-        }
-        return sqDist;
-    }
-    return undefined;
 }
 
 WebGlApi.Fps = function (element) {
