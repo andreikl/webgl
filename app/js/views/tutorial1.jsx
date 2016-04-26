@@ -60,12 +60,17 @@ export default View.extend({
             this._setPerspective(this.canvas._sizeHandler());
         }, 10);
 
+
         Utils.ajaxGet('/api/getSphere', (data) => {
             this.object1 = {};
             WebGlApi.setUpObject(this, this.object1, data);
 
             this.isRun = true;
             this._tick();
+
+            const readyEvent = new Event('readyEvent');
+            document.dispatchEvent(readyEvent);
+
         }, function (error) {
             console.log('Error is happend: ', error);
         });

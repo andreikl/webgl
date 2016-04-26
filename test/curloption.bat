@@ -1,0 +1,1 @@
+curl --header "Access-Control-Request-Method: GET" --header "Origin: localhost:8181" -X OPTIONS -Ivs http://localhost:8080/api/getSphere

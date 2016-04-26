@@ -11,7 +11,10 @@ console.log('\x1b[32m', 'Config isDev: ' + config.isDev, '\x1b[0m');
 var server = new Hapi.Server();
 server.connection({ 
     host: 'localhost', 
-    port: 8080 
+    port: 8080,
+    routes: {
+        cors: true
+    }
 });
 
 var plugin = {
@@ -505,7 +508,7 @@ server.route({
 
 server.route({
     method: 'GET',
-    path:'/api/getSphere', 
+    path:'/api/getSphere',
     handler: function (request, reply) {
         if (!request.query.rows) {
             request.query.rows = 30;

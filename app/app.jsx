@@ -13,7 +13,11 @@ window.app = {
             el: $el,
             model: this.model
         });
-        this.router.history.start({pushState: false});
+        if (!window.defaultView) {
+            this.router.history.start({pushState: false});
+        } else {
+            this.model.view = window.defaultView;
+        }
     },
     config: {
         baseUrl: ''
